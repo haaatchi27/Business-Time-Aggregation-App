@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: antigravity_timer
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount the local 'data' directory to the container's '/app/data' directory.
+      # This ensures the SQLite database persists even if the container is removed.
+      - ./data:/app/data
+      # Mount host timezone to the container
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - TZ=Asia/Tokyo
+    restart: unless-stopped

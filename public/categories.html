@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories - 業務時間集計</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <h1 data-i18n="title">Activity Tracker</h1>
+            <p class="subtitle" data-i18n="subtitle_categories">Manage categories and aggregate tracked time.</p>
+            <nav class="nav-menu" style="margin-top: 1rem;">
+                <a href="index.html" class="nav-link" data-i18n="nav_home">Home</a>
+                <a href="categories.html" class="nav-link active" data-i18n="nav_categories">Categories / Summary</a>
+                <a href="daily-report.html" class="nav-link" data-i18n="nav_daily">Daily Report</a>
+            </nav>
+        </header>
+
+        <!-- Category Input Section -->
+        <section class="task-input-section">
+            <form id="add-category-form" class="task-input-form">
+                <input type="text" id="category-name-input" placeholder="Create a new aggregated category"
+                    data-i18n="cat_placeholder" required autocomplete="off">
+                <button type="submit" class="btn-primary" data-i18n="add_cat_btn">Add Category</button>
+            </form>
+            <div id="error-message" class="error-message hidden"></div>
+        </section>
+
+        <!-- Categories List Section -->
+        <section class="tasks-section">
+            <h2 data-i18n="header_categories">Aggregated Categories</h2>
+            <div id="categories-container" class="categories-container">
+                <!-- Category items will be injected here -->
+                <div class="loading" data-i18n="loading">Loading categories...</div>
+            </div>
+        </section>
+
+        <!-- Unassigned Tasks Section -->
+        <section class="unassigned-section" style="margin-top: 2rem;">
+            <h2 data-i18n="header_unassigned">Unassigned Tasks</h2>
+            <div id="unassigned-container" class="categories-container">
+                <!-- Unassigned tasks will be injected here -->
+                <div class="loading" data-i18n="loading">Loading unassigned tasks...</div>
+            </div>
+        </section>
+
+        <!-- Bottom spacing since we don't have footer on this page -->
+        <div style="height: 40px;"></div>
+    </div>
+
+    <!-- Category Assignment Modal -->
+    <div id="assign-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 data-i18n="modal_assign_title">Assign Category</h3>
+            <p id="assign-task-name" style="margin-bottom: 1rem; color: #fff;"></p>
+            <form id="assign-form">
+                <input type="hidden" id="assign-task-id">
+                <div class="form-group">
+                    <label for="category-select" data-i18n="select_category">Select Category</label>
+                    <select id="category-select"
+                        style="padding: 0.5rem; background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 4px;">
+                        <!-- Options generated dynamically -->
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-assign-btn" class="btn-secondary"
+                        data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-primary" data-i18n="save">Save Assignment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="categories.js"></script>
+</body>
+
+</html>

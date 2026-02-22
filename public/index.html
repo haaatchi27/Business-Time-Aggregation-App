@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>業務時間集計</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <h1 data-i18n="title">Activity Tracker</h1>
+            <p class="subtitle" data-i18n="subtitle_home">Keep track of your time, effortlessly.</p>
+            <nav class="nav-menu" style="margin-top: 1rem;">
+                <a href="index.html" class="nav-link active" data-i18n="nav_home">Home</a>
+                <a href="categories.html" class="nav-link" data-i18n="nav_categories">Categories / Summary</a>
+                <a href="daily-report.html" class="nav-link" data-i18n="nav_daily">Daily Report</a>
+            </nav>
+        </header>
+
+        <!-- Task Input Section -->
+        <section class="task-input-section">
+            <form id="add-task-form" class="task-input-form">
+                <input type="text" id="task-name-input" placeholder="What are you working on?"
+                    data-i18n="task_placeholder" required autocomplete="off">
+                <button type="submit" class="btn-primary" data-i18n="start_btn">Add Task</button>
+            </form>
+            <div id="error-message" class="error-message hidden"></div>
+        </section>
+
+        <!-- Tasks List Section -->
+        <section class="tasks-section">
+            <div class="section-header">
+                <h2 data-i18n="header_tasks">Your Tasks</h2>
+                <div class="sort-container">
+                    <label for="task-sort" data-i18n="sort_label"
+                        style="font-size: 0.8rem; color: var(--text-muted);">Sort by:</label>
+                    <select id="task-sort" class="sort-select">
+                        <option value="created_at" data-i18n="sort_created">Creation Date</option>
+                        <option value="activity" data-i18n="sort_activity">Activity</option>
+                        <option value="abc" data-i18n="sort_abc">Alphabetical</option>
+                    </select>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="task-sort-reverse">
+                        <label for="task-sort-reverse" data-i18n="sort_reverse"
+                            style="font-size: 0.8rem; color: var(--text-muted);">Reverse</label>
+                    </div>
+                </div>
+            </div>
+            <div id="tasks-container" class="tasks-container">
+                <!-- Task buttons will be injected here -->
+                <div class="loading" data-i18n="loading">Loading tasks...</div>
+            </div>
+        </section>
+
+        <!-- Timeline Section -->
+        <section class="timeline-section">
+            <h2 data-i18n="header_today">Today's Timeline</h2>
+            <div id="timeline-container" class="timeline-container">
+                <!-- Timeline items will be injected here -->
+                <div class="loading" data-i18n="loading">Loading timeline...</div>
+            </div>
+        </section>
+
+        <!-- Footer / Stop Button -->
+        <footer class="footer">
+            <button id="stop-button" class="btn-stop" data-i18n="stop_tracking" disabled>Stop Tracking</button>
+        </footer>
+    </div>
+
+    <!-- Edit Record Modal -->
+    <div id="edit-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 data-i18n="edit_modal_title">Edit Record</h3>
+            <form id="edit-record-form">
+                <input type="hidden" id="edit-record-id">
+                <div class="form-group">
+                    <label for="edit-start-time" data-i18n="start_time_label">Start Time</label>
+                    <input type="datetime-local" id="edit-start-time" step="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-end-time" data-i18n="end_time_label">End Time</label>
+                    <input type="datetime-local" id="edit-end-time" step="1">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-edit-btn" class="btn-secondary" data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-primary" data-i18n="save_changes">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

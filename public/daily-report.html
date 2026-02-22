@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Report - 業務時間集計</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <h1 data-i18n="title">Activity Tracker</h1>
+            <p class="subtitle" data-i18n="subtitle_daily">View your daily/weekly time aggregation.</p>
+            <nav class="nav-menu" style="margin-top: 1rem;">
+                <a href="index.html" class="nav-link" data-i18n="nav_home">Home</a>
+                <a href="categories.html" class="nav-link" data-i18n="nav_categories">Categories / Summary</a>
+                <a href="daily-report.html" class="nav-link active" data-i18n="nav_daily">Daily Report</a>
+            </nav>
+        </header>
+
+        <!-- View Toggle -->
+        <div class="report-toggle">
+            <button id="btn-daily" class="toggle-btn active" data-i18n="mode_daily">Daily</button>
+            <button id="btn-weekly" class="toggle-btn" data-i18n="mode_weekly">Weekly</button>
+            <button id="btn-category" class="toggle-btn" data-i18n="mode_category">By Category</button>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error-message" class="error-message hidden" style="margin-bottom: 1rem;"></div>
+
+        <!-- Reports Section -->
+        <section class="reports-section">
+            <h2 id="report-header" data-i18n="header_daily">Daily Aggregation</h2>
+            <div id="reports-container" class="reports-container">
+                <!-- Report items will be injected here -->
+                <div class="loading" data-i18n="loading">Loading reports...</div>
+            </div>
+        </section>
+
+        <!-- Bottom spacing -->
+        <div style="height: 40px;"></div>
+    </div>
+
+    <!-- Template for report card -->
+    <template id="report-card-template">
+        <div class="daily-card">
+            <div class="daily-header">
+                <div>
+                    <h3 class="daily-date"></h3>
+                    <div class="daily-duration"><span data-i18n="total_time">Total Time</span>: <strong></strong></div>
+                </div>
+                <button class="btn-toggle-day" title="Toggle Details">▼</button>
+            </div>
+            <div class="daily-body hidden">
+                <div class="chart-container">
+                    <canvas class="report-chart"></canvas>
+                </div>
+                <div class="categories-list"></div>
+                <div class="unassigned-list"></div>
+            </div>
+        </div>
+    </template>
+
+    <script src="i18n.js"></script>
+    <script src="daily-report.js"></script>
+</body>
+
+</html>
