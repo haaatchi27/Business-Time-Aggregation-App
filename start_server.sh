@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Service name defined in docker-compose.yml
-SERVICE_NAME="Business-Time-Aggregation-App"
+# Service name defined in docker-compose.yml (the key under 'services')
+SERVICE_NAME="app"
 
 # Check for 'restart' argument
 if [ "$1" == "restart" ]; then

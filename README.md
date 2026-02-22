@@ -30,13 +30,23 @@
    cd YOUR_REPO_NAME
    ```
 
-2. Docker コンテナを起動します。
+2. サーバーを起動します（制御スクリプトを利用します）。
    ```bash
-   docker-compose up -d
+   # 通常起動（起動済みの場合は何もしません）
+   ./start_server.sh
+
+   # 再起動（コンテナを再ビルドして再起動します）
+   ./start_server.sh restart
    ```
 
 3. ブラウザでアクセスします。
    [http://localhost:3000](http://localhost:3000)
+
+## スクリプトの機能
+
+- **自動状態確認**: サービスが既に実行中の場合は二重起動を防ぎます。
+- **Rebuild Restart**: `restart` 引数を渡すことで、`docker compose down` の実行後に `--build` オプション付きで最新のコードを反映して再起動します。
+- **管理者権限**: WSL/Linux環境での利用を想定し、内部で `sudo` を使用しています。
 
 ## 開発者向け情報
 
