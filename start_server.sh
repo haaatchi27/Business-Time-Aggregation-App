@@ -1,7 +1,16 @@
 #!/bin/bash
 
-# Service name defined in docker-compose.yml (the key under 'services')
-SERVICE_NAME="app"
+# Service name defined in docker-compose.yml
+SERVICE_NAME="Business-Time-Aggregation-App"
+
+# root check
+USERID="$(sudo id -u) 2>/dev/null"
+if [ "$USERID" != "0" ]; then
+    echo "This script must be run as root"
+    exit 1
+fi  
+
+
 
 # Check for 'restart' argument
 if [ "$1" == "restart" ]; then

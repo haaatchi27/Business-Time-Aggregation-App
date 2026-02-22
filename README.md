@@ -1,5 +1,8 @@
 # 業務時間集計アプリ (Business Time Tracker)
 
+> [!NOTE]
+> 本プロジェクトは Antigravity によるテストプロジェクトです。
+
 シンプルかつ強力な業務時間計測・集計ツールです。タスクごとに時間を記録し、日別・週別・カテゴリ別のレポートを自動生成します。
 
 ![Main Interface](https://via.placeholder.com/800x450.png?text=Activity+Tracker+Interface)
@@ -26,8 +29,8 @@
 
 1. リポジトリをクローンします。
    ```bash
-   git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-   cd YOUR_REPO_NAME
+   git clone https://github.com/haaatchi27/Business-Time-Aggregation-App
+   cd Business-Time-Aggregation-App
    ```
 
 2. サーバーを起動します（制御スクリプトを利用します）。
