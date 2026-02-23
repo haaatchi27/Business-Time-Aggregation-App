@@ -178,6 +178,7 @@ app.get('/api/reports/daily', (req, res) => {
             SELECT 
                 r.id as record_id, 
                 r.start_time, 
+                r.end_time,
                 r.duration_sec,
                 t.id as task_id,
                 t.name as task_name,
@@ -202,13 +203,23 @@ app.get('/api/reports/daily', (req, res) => {
                     date: dateStr,
                     total_duration: 0,
                     categories: {},
-                    unassigned_tasks: {}
+                    unassigned_tasks: {},
+                    timeline: []
                 };
             }
 
             const dayObj = dailyData[dateStr];
             const duration = record.duration_sec || 0;
             dayObj.total_duration += duration;
+
+            // Add to timeline
+            dayObj.timeline.push({
+                id: record.record_id,
+                task_name: record.task_name,
+                start_time: record.start_time,
+                end_time: record.end_time,
+                duration_sec: record.duration_sec
+            });
 
             if (record.category_id) {
                 // Task has a category
@@ -249,6 +260,7 @@ app.get('/api/reports/daily', (req, res) => {
             return {
                 date: day.date,
                 total_duration: day.total_duration,
+                timeline: day.timeline.sort((a, b) => a.start_time.localeCompare(b.start_time)), // Chronological order
                 categories: Object.values(day.categories).map(cat => ({
                     ...cat,
                     tasks: Object.values(cat.tasks).sort((a, b) => b.total_duration - a.total_duration)

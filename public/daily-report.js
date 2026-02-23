@@ -150,6 +150,39 @@ function renderStandardReports() {
             `;
             clone.querySelector('.unassigned-list').appendChild(unEl);
         }
+
+        // Timetable
+        const timetableContainer = clone.querySelector('.timetable-container');
+        if (item.timeline && item.timeline.length > 0) {
+            const table = document.createElement('table');
+            table.className = 'timetable-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th data-i18n="start_time_label">Start</th>
+                        <th data-i18n="end_time_label">End</th>
+                        <th data-i18n="task_name_label">Task</th>
+                        <th style="text-align: right;">Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${item.timeline.map(record => `
+                        <tr>
+                            <td class="timetable-time-col">${formatTimeOnly(record.start_time)}</td>
+                            <td class="timetable-time-col">${formatTimeOnly(record.end_time)}</td>
+                            <td class="timetable-task-col">${escapeHTML(record.task_name)}</td>
+                            <td class="timetable-duration-col">${formatDuration(record.duration_sec)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            `;
+            timetableContainer.appendChild(table);
+        } else {
+            // Hide timetable section if no timeline data (e.g. in weekly mode if we don't fetch it, but here we do)
+            const ttSection = clone.querySelector('.timetable-section');
+            if (ttSection) ttSection.style.display = 'none';
+        }
+
         reportsContainer.appendChild(clone);
     });
 }
@@ -286,6 +319,12 @@ function formatDuration(seconds) {
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+function formatTimeOnly(dateStr) {
+    if (!dateStr) return '--:--';
+    const date = new Date(dateStr.replace(' ', 'T'));
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 function formatDurationHuman(seconds, roundTo30 = false) {

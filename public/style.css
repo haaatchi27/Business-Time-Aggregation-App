@@ -687,3 +687,46 @@ h2 {
 .report-task-time {
     color: var(--text-muted);
 }
+
+/* Timetable Styles */
+.timetable-container {
+    overflow-x: auto;
+}
+
+.timetable-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.timetable-table th {
+    text-align: left;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.timetable-table td {
+    padding: 0.5rem;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.timetable-table tr:last-child td {
+    border-bottom: none;
+}
+
+.timetable-time-col {
+    white-space: nowrap;
+    color: var(--primary-color);
+    font-family: monospace;
+}
+
+.timetable-task-col {
+    color: var(--text-main);
+}
+
+.timetable-duration-col {
+    text-align: right;
+    color: var(--text-muted);
+}
