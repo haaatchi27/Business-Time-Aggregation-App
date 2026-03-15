@@ -15,6 +15,7 @@ const timelineContainer = document.getElementById('timeline-container');
 const stopBtn = document.getElementById('stop-button');
 const taskSortSelect = document.getElementById('task-sort');
 const taskSortReverse = document.getElementById('task-sort-reverse');
+const taskSearchInput = document.getElementById('task-search-input');
 
 const editModal = document.getElementById('edit-modal');
 const editForm = document.getElementById('edit-record-form');
@@ -142,9 +143,15 @@ function renderTasks() {
         return;
     }
 
+    // Filter tasks by search query
+    const searchQuery = taskSearchInput ? taskSearchInput.value.toLowerCase() : '';
+    const filteredTasks = searchQuery
+        ? tasks.filter(task => task.name.toLowerCase().includes(searchQuery))
+        : tasks;
+
     // Sort tasks based on criteria
     const sortBy = taskSortSelect.value;
-    const sortedTasks = [...tasks].sort((a, b) => {
+    const sortedTasks = [...filteredTasks].sort((a, b) => {
         if (sortBy === 'created_at') {
             // Newest first (Descending)
             const timeA = a.created_at ? new Date(a.created_at.replace(' ', 'T')).getTime() : 0;
@@ -169,6 +176,12 @@ function renderTasks() {
     }
 
     tasksContainer.innerHTML = '';
+
+    if (sortedTasks.length === 0) {
+        tasksContainer.innerHTML = `<p class="text-muted">${t('no_tasks_added')}</p>`;
+        return;
+    }
+
     sortedTasks.forEach(task => {
         const isActive = activeRecord && activeRecord.task_id === task.id;
 
@@ -194,8 +207,15 @@ function renderTimeline() {
         return;
     }
 
+    // Sort records chronologically (oldest first)
+    const sortedRecords = [...records].sort((a, b) => {
+        const timeA = new Date(a.start_time.replace(' ', 'T')).getTime();
+        const timeB = new Date(b.start_time.replace(' ', 'T')).getTime();
+        return timeA - timeB;
+    });
+
     timelineContainer.innerHTML = '';
-    records.forEach(record => {
+    sortedRecords.forEach(record => {
         const isRunning = !record.end_time;
         const item = document.createElement('div');
         item.className = `timeline-item ${isRunning ? 'active-record' : ''}`;
@@ -330,6 +350,7 @@ function setupEventListeners() {
 
     taskSortSelect.addEventListener('change', renderTasks);
     taskSortReverse.addEventListener('change', renderTasks);
+    taskSearchInput.addEventListener('input', renderTasks);
 
     // Re-render strings when language changes
     window.addEventListener('languageChanged', () => {

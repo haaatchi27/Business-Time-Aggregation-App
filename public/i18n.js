@@ -28,6 +28,7 @@ const translations = {
         "edit": "Edit",
         "delete": "Delete",
         "nothing_to_stop": "Nothing to stop",
+        "search_task_placeholder": "Search tasks...",
 
         // Categories View (categories.html & categories.js)
         "cat_placeholder": "Create a new aggregated category",
@@ -52,6 +53,7 @@ const translations = {
         "end_time_label": "End Time",
         "save_changes": "Save Changes",
         "select_category": "Select Category",
+        "search_category_placeholder": "Search categories...",
 
         // Daily View (daily-report.html & daily-report.js)
         "header_daily": "Daily Aggregation",
@@ -69,7 +71,8 @@ const translations = {
         "year_label": "",
         "week_of": "Week of ",
         "loading": "Loading...",
-        "active_rec": "● REC"
+        "active_rec": "● REC",
+        "download_csv": "CSV Download"
     },
     ja: {
         "title": "業務時間集計",
@@ -100,6 +103,7 @@ const translations = {
         "edit": "編集",
         "delete": "削除",
         "nothing_to_stop": "終了できるタスクはありません",
+        "search_task_placeholder": "タスクを検索...",
 
         // Categories View
         "cat_placeholder": "新しいカテゴリー名を入力",
@@ -124,6 +128,7 @@ const translations = {
         "end_time_label": "終了時刻",
         "save_changes": "保存する",
         "select_category": "カテゴリーを選択",
+        "search_category_placeholder": "カテゴリーを検索...",
 
         // Daily View
         "header_daily": "日別レポート",
@@ -141,7 +146,8 @@ const translations = {
         "year_label": "年",
         "week_of": "週開始日: ",
         "loading": "読み込み中...",
-        "active_rec": "● 計測中"
+        "active_rec": "● 計測中",
+        "download_csv": "CSV ダウンロード"
     }
 };
 

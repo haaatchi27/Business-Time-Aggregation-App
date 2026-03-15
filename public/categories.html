@@ -62,11 +62,15 @@
             <form id="assign-form">
                 <input type="hidden" id="assign-task-id">
                 <div class="form-group">
-                    <label for="category-select" data-i18n="select_category">Select Category</label>
-                    <select id="category-select"
-                        style="padding: 0.5rem; background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 4px;">
-                        <!-- Options generated dynamically -->
-                    </select>
+                    <label data-i18n="select_category">Select Category</label>
+                    <div class="searchable-select" id="searchable-category-select">
+                        <input type="text" class="searchable-select-input" id="category-search-input"
+                            autocomplete="off" data-i18n="search_category_placeholder">
+                        <input type="hidden" id="category-select-value">
+                        <div class="searchable-select-options" id="category-options-list">
+                            <!-- Options generated dynamically -->
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-actions">
                     <button type="button" id="cancel-assign-btn" class="btn-secondary"

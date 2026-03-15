@@ -109,6 +109,17 @@ function renderStandardReports() {
             if (!isHidden) renderChart(canvas, item);
         });
 
+        // CSV download button (daily mode only)
+        const csvContainer = clone.querySelector('.csv-download-container');
+        if (currentMode === 'daily') {
+            csvContainer.classList.remove('hidden');
+            const csvBtn = csvContainer.querySelector('.btn-csv-download');
+            csvBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                downloadCSV(item);
+            });
+        }
+
         // Categories & Unassigned
         const catContainer = clone.querySelector('.categories-list');
         item.categories.forEach(cat => {
@@ -123,7 +134,7 @@ function renderStandardReports() {
             catEl.innerHTML = `
                 <div class="report-category-header">
                     <span class="report-category-name">${escapeHTML(cat.name)}</span>
-                    <span class="report-category-time">${formatDuration(cat.total_duration)}</span>
+                    <span class="report-category-time">${formatDurationHuman(cat.total_duration, true)}</span>
                 </div>
                 <div class="report-category-tasks">${tasksHtml}</div>
             `;
@@ -137,7 +148,7 @@ function renderStandardReports() {
             unEl.innerHTML = `
                 <div class="report-category-header">
                     <span class="report-category-name text-muted">${t('unassigned_group')}</span>
-                    <span class="report-category-time text-muted">${formatDuration(unassignedTotal)}</span>
+                    <span class="report-category-time text-muted">${formatDurationHuman(unassignedTotal, true)}</span>
                 </div>
                 <div class="report-category-tasks">
                     ${item.unassigned_tasks.map(uTask => `
@@ -361,6 +372,50 @@ function formatDurationHuman(seconds, roundTo30 = false) {
         return `${h}時間${m}分`;
     }
     return `${h}h ${m}m`;
+}
+
+// CSV Download
+function roundTo30MinHours(seconds) {
+    const totalMinutes = Math.floor(seconds / 60);
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+
+    if (mins >= 45) {
+        return hours + 1;
+    } else if (mins >= 15) {
+        return hours + 0.5;
+    } else {
+        return hours;
+    }
+}
+
+function downloadCSV(item) {
+    const dateStr = item.date.replace(/-/g, '/');
+    const lines = [dateStr];
+
+    // Categories
+    item.categories.forEach(cat => {
+        const hours = roundTo30MinHours(cat.total_duration);
+        lines.push(`${cat.name}, ${hours.toFixed(1)}`);
+    });
+
+    // Unassigned tasks
+    if (item.unassigned_tasks && item.unassigned_tasks.length > 0) {
+        const unassignedTotal = item.unassigned_tasks.reduce((sum, uTask) => sum + uTask.total_duration, 0);
+        const hours = roundTo30MinHours(unassignedTotal);
+        const label = t('unassigned_group');
+        lines.push(`${label}, ${hours.toFixed(1)}`);
+    }
+
+    const csvContent = lines.join('\n');
+    const bom = '\uFEFF';
+    const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `report_${item.date}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
 }
 
 // Re-render when language changes

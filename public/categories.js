@@ -14,9 +14,14 @@ const unassignedContainer = document.getElementById('unassigned-container');
 const assignModal = document.getElementById('assign-modal');
 const assignForm = document.getElementById('assign-form');
 const cancelAssignBtn = document.getElementById('cancel-assign-btn');
-const categorySelect = document.getElementById('category-select');
 const assignTaskId = document.getElementById('assign-task-id');
 const assignTaskName = document.getElementById('assign-task-name');
+
+// Searchable select elements
+const searchableSelect = document.getElementById('searchable-category-select');
+const categorySearchInput = document.getElementById('category-search-input');
+const categorySelectValue = document.getElementById('category-select-value');
+const categoryOptionsList = document.getElementById('category-options-list');
 
 // Initialize
 async function init() {
@@ -83,20 +88,78 @@ function openAssignModal(taskId, taskName, currentCategoryId) {
     assignTaskId.value = taskId;
     assignTaskName.textContent = `${t('modal_assigning')} ${escapeHTML(taskName)}`;
 
-    // Populate select
-    categorySelect.innerHTML = `<option value="">${t('modal_unassigned_opt')}</option>`;
-    categories.forEach(cat => {
-        const selected = (currentCategoryId === cat.id) ? 'selected' : '';
-        categorySelect.innerHTML += `<option value="${cat.id}" ${selected}>${escapeHTML(cat.name)}</option>`;
+    // Sort categories by name
+    const sortedCategories = [...categories].sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+    );
+
+    // Store sorted categories for filtering
+    searchableSelect._categories = sortedCategories;
+    searchableSelect._currentCategoryId = currentCategoryId;
+
+    // Set initial display
+    const currentCat = sortedCategories.find(c => c.id === currentCategoryId);
+    if (currentCat) {
+        categorySearchInput.value = currentCat.name;
+        categorySelectValue.value = currentCat.id;
+    } else {
+        categorySearchInput.value = t('modal_unassigned_opt');
+        categorySelectValue.value = '';
+    }
+
+    // Render filtered options
+    renderCategoryOptions(sortedCategories, currentCategoryId, '');
+
+    searchableSelect.classList.remove('open');
+    assignModal.classList.remove('hidden');
+}
+
+function renderCategoryOptions(sortedCategories, selectedId, filter) {
+    categoryOptionsList.innerHTML = '';
+
+    // Unassigned option (always shown)
+    const unassignedOpt = document.createElement('div');
+    unassignedOpt.className = 'searchable-select-option unassigned-opt';
+    if (!selectedId && selectedId !== 0) unassignedOpt.classList.add('selected');
+    unassignedOpt.textContent = t('modal_unassigned_opt');
+    unassignedOpt.dataset.value = '';
+    unassignedOpt.addEventListener('click', () => selectCategoryOption('', t('modal_unassigned_opt')));
+    categoryOptionsList.appendChild(unassignedOpt);
+
+    const filterLower = filter.toLowerCase();
+    let hasResults = false;
+
+    sortedCategories.forEach(cat => {
+        if (filterLower && !cat.name.toLowerCase().includes(filterLower)) return;
+        hasResults = true;
+
+        const opt = document.createElement('div');
+        opt.className = 'searchable-select-option';
+        if (selectedId === cat.id) opt.classList.add('selected');
+        opt.textContent = cat.name;
+        opt.dataset.value = cat.id;
+        opt.addEventListener('click', () => selectCategoryOption(String(cat.id), cat.name));
+        categoryOptionsList.appendChild(opt);
     });
 
-    assignModal.classList.remove('hidden');
+    if (!hasResults && filterLower) {
+        const noResult = document.createElement('div');
+        noResult.className = 'searchable-select-no-results';
+        noResult.textContent = currentLang === 'ja' ? '該当なし' : 'No results';
+        categoryOptionsList.appendChild(noResult);
+    }
+}
+
+function selectCategoryOption(value, label) {
+    categorySelectValue.value = value;
+    categorySearchInput.value = label;
+    searchableSelect.classList.remove('open');
 }
 
 async function submitAssignment(e) {
     e.preventDefault();
     const taskId = assignTaskId.value;
-    const categoryId = categorySelect.value || null;
+    const categoryId = categorySelectValue.value || null;
 
     try {
         const res = await fetch(`${API_BASE}/tasks/${taskId}/category`, {
@@ -210,6 +273,27 @@ function setupEventListeners() {
     categoryForm.addEventListener('submit', addCategory);
     assignForm.addEventListener('submit', submitAssignment);
     cancelAssignBtn.addEventListener('click', () => assignModal.classList.add('hidden'));
+
+    // Searchable dropdown events
+    categorySearchInput.addEventListener('focus', () => {
+        searchableSelect.classList.add('open');
+        categorySearchInput.select();
+    });
+
+    categorySearchInput.addEventListener('input', () => {
+        const filter = categorySearchInput.value;
+        const cats = searchableSelect._categories || [];
+        const currentId = searchableSelect._currentCategoryId;
+        renderCategoryOptions(cats, categorySelectValue.value ? parseInt(categorySelectValue.value) : null, filter);
+        searchableSelect.classList.add('open');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!searchableSelect.contains(e.target)) {
+            searchableSelect.classList.remove('open');
+        }
+    });
 
     window.addEventListener('languageChanged', renderData);
 }

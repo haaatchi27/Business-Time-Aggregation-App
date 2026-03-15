@@ -22,6 +22,15 @@
             </nav>
         </header>
 
+        <!-- Timeline Section (Today's Activity) -->
+        <section class="timeline-section">
+            <h2 data-i18n="header_today">Today's Timeline</h2>
+            <div id="timeline-container" class="timeline-container">
+                <!-- Timeline items will be injected here -->
+                <div class="loading" data-i18n="loading">Loading timeline...</div>
+            </div>
+        </section>
+
         <!-- Task Input Section -->
         <section class="task-input-section">
             <form id="add-task-form" class="task-input-form">
@@ -51,18 +60,11 @@
                     </div>
                 </div>
             </div>
+            <input type="text" id="task-search-input" class="task-search-input" placeholder="Search tasks..."
+                data-i18n="search_task_placeholder" autocomplete="off">
             <div id="tasks-container" class="tasks-container">
                 <!-- Task buttons will be injected here -->
                 <div class="loading" data-i18n="loading">Loading tasks...</div>
-            </div>
-        </section>
-
-        <!-- Timeline Section -->
-        <section class="timeline-section">
-            <h2 data-i18n="header_today">Today's Timeline</h2>
-            <div id="timeline-container" class="timeline-container">
-                <!-- Timeline items will be injected here -->
-                <div class="loading" data-i18n="loading">Loading timeline...</div>
             </div>
         </section>
 
