@@ -10,7 +10,7 @@ const translations = {
 
         // Home View (index.html & app.js)
         "task_placeholder": "What are you working on?",
-        "start_btn": "Start",
+        "start_btn": "Add",
         "no_activity": "No activity recorded today.",
         "active_record": "Active",
         "header_tasks": "Your Tasks",
@@ -29,6 +29,8 @@ const translations = {
         "delete": "Delete",
         "nothing_to_stop": "Nothing to stop",
         "search_task_placeholder": "Search tasks...",
+        "show_more": "Show previous activities",
+        "show_less": "Collapse",
 
         // Categories View (categories.html & categories.js)
         "cat_placeholder": "Create a new aggregated category",
@@ -85,7 +87,7 @@ const translations = {
 
         // Home View
         "task_placeholder": "何に取り掛かりますか？",
-        "start_btn": "開始",
+        "start_btn": "追加",
         "no_activity": "今日の記録はまだありません。",
         "active_record": "計測中",
         "header_tasks": "タスク一覧",
@@ -104,6 +106,8 @@ const translations = {
         "delete": "削除",
         "nothing_to_stop": "終了できるタスクはありません",
         "search_task_placeholder": "タスクを検索...",
+        "show_more": "過去のアクティビティを表示",
+        "show_less": "折りたたむ",
 
         // Categories View
         "cat_placeholder": "新しいカテゴリー名を入力",

@@ -16,10 +16,12 @@ const stopBtn = document.getElementById('stop-button');
 const taskSortSelect = document.getElementById('task-sort');
 const taskSortReverse = document.getElementById('task-sort-reverse');
 const taskSearchInput = document.getElementById('task-search-input');
+const timelineToggleBtn = document.getElementById('timeline-toggle-btn');
 
 const editModal = document.getElementById('edit-modal');
 const editForm = document.getElementById('edit-record-form');
 const cancelEditBtn = document.getElementById('cancel-edit-btn');
+const taskNameInput = document.getElementById('task-name-input');
 
 // Initialize
 async function init() {
@@ -177,9 +179,17 @@ function renderTasks() {
 
     tasksContainer.innerHTML = '';
 
+    console.log("searchedTasks.length : " + sortedTasks.length);
     if (sortedTasks.length === 0) {
         tasksContainer.innerHTML = `<p class="text-muted">${t('no_tasks_added')}</p>`;
+        taskNameInput.value = taskSearchInput.value;
+        // // Auto-fill task name input if search returned no results
+        // if (searchQuery && taskNameInput) {
+        //     taskNameInput.value = taskSearchInput.value;
+        // }
         return;
+    } else {
+        taskNameInput.value = "";
     }
 
     sortedTasks.forEach(task => {
@@ -201,9 +211,12 @@ function renderTasks() {
     });
 }
 
+let showAllTimeline = false;
+
 function renderTimeline() {
     if (records.length === 0) {
         timelineContainer.innerHTML = `<p class="text-muted">${t('no_activity')}</p>`;
+        if (timelineToggleBtn) timelineToggleBtn.classList.add('hidden');
         return;
     }
 
@@ -215,7 +228,23 @@ function renderTimeline() {
     });
 
     timelineContainer.innerHTML = '';
-    sortedRecords.forEach(record => {
+
+    const needsFolding = sortedRecords.length > 2;
+    const recordsToRender = (needsFolding && !showAllTimeline)
+        ? sortedRecords.slice(-2)
+        : sortedRecords;
+
+    // Update Header Toggle Button
+    if (timelineToggleBtn) {
+        if (needsFolding) {
+            timelineToggleBtn.classList.remove('hidden');
+            timelineToggleBtn.textContent = showAllTimeline ? t('show_less') : `${t('show_more')} (${sortedRecords.length - 2})`;
+        } else {
+            timelineToggleBtn.classList.add('hidden');
+        }
+    }
+
+    recordsToRender.forEach(record => {
         const isRunning = !record.end_time;
         const item = document.createElement('div');
         item.className = `timeline-item ${isRunning ? 'active-record' : ''}`;
@@ -235,10 +264,12 @@ function renderTimeline() {
                 <span class="timeline-task-name">${escapeHTML(record.task_name)}</span>
                 <span class="timeline-duration">${displayDuration}</span>
             </div>
-            <div class="timeline-time">${startDisplay} - ${endDisplay}</div>
-            <div class="timeline-actions">
-                <button class="btn-danger-ghost" style="color: var(--text-main);" onclick="openEditModal(${record.id}, '${record.start_time}', '${record.end_time || ''}')">${t('edit')}</button>
-                <button class="btn-danger-ghost" onclick="deleteRecord(${record.id})">${t('delete')}</button>
+            <div class="timeline-footer">
+                <div class="timeline-time">${startDisplay} - ${endDisplay}</div>
+                <div class="timeline-actions">
+                    <button class="btn-danger-ghost" style="color: var(--text-main);" onclick="openEditModal(${record.id}, '${record.start_time}', '${record.end_time || ''}')">${t('edit')}</button>
+                    <button class="btn-danger-ghost" onclick="deleteRecord(${record.id})">${t('delete')}</button>
+                </div>
             </div>
         `;
         timelineContainer.appendChild(item);
@@ -351,6 +382,12 @@ function setupEventListeners() {
     taskSortSelect.addEventListener('change', renderTasks);
     taskSortReverse.addEventListener('change', renderTasks);
     taskSearchInput.addEventListener('input', renderTasks);
+    if (timelineToggleBtn) {
+        timelineToggleBtn.addEventListener('click', () => {
+            showAllTimeline = !showAllTimeline;
+            renderTimeline();
+        });
+    }
 
     // Re-render strings when language changes
     window.addEventListener('languageChanged', () => {
