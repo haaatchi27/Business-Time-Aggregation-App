@@ -31,6 +31,7 @@ const translations = {
         "search_task_placeholder": "Search tasks...",
         "show_more": "Show previous activities",
         "show_less": "Collapse",
+        "error_start_after_end": "Start time must be before end time",
 
         // Categories View (categories.html & categories.js)
         "cat_placeholder": "Create a new aggregated category",
@@ -108,6 +109,7 @@ const translations = {
         "search_task_placeholder": "タスクを検索...",
         "show_more": "過去のアクティビティを表示",
         "show_less": "折りたたむ",
+        "error_start_after_end": "開始時刻は終了時刻より前である必要があります",
 
         // Categories View
         "cat_placeholder": "新しいカテゴリー名を入力",

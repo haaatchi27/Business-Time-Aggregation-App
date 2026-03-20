@@ -513,20 +513,64 @@ app.put('/api/records/:id', (req, res) => {
     const { start_time, end_time } = req.body;
 
     try {
-        let durationSec = null;
-        if (start_time && end_time) {
-            const startTimestamp = new Date(start_time.replace(' ', 'T')).getTime();
-            const endTimestamp = new Date(end_time.replace(' ', 'T')).getTime();
-            durationSec = Math.max(0, Math.floor((endTimestamp - startTimestamp) / 1000));
+        const record = db.prepare('SELECT * FROM records WHERE id = ? AND user_id = ?').get(id, DEFAULT_USER_ID);
+        if (!record) return res.status(404).json({ error: 'Record not found' });
+
+        const finalStart = start_time || record.start_time;
+        const finalEnd = end_time || record.end_time;
+
+        if (finalEnd && new Date(finalStart.replace(' ', 'T')) >= new Date(finalEnd.replace(' ', 'T'))) {
+            return res.status(400).json({ error: 'Start time must be before end time' });
         }
 
-        db.prepare(`
-            UPDATE records 
-            SET start_time = COALESCE(?, start_time), 
-                end_time = COALESCE(?, end_time),
-                duration_sec = COALESCE(?, duration_sec)
-            WHERE id = ? AND user_id = ?
-        `).run(start_time || null, end_time || null, durationSec, id, DEFAULT_USER_ID);
+        db.transaction(() => {
+            // Adjust overlaps
+            // 1. Delete records completely inside the new range
+            if (finalEnd) {
+                db.prepare(`
+                    DELETE FROM records 
+                    WHERE user_id = ? AND id != ?
+                      AND start_time >= ? AND end_time <= ?
+                `).run(DEFAULT_USER_ID, id, finalStart, finalEnd);
+            }
+
+            // 2. Truncate records that end after new_start but start before it
+            db.prepare(`
+                UPDATE records 
+                SET end_time = ?, 
+                    duration_sec = (STRFTIME('%s', REPLACE(?, ' ', 'T')) - STRFTIME('%s', REPLACE(start_time, ' ', 'T')))
+                WHERE user_id = ? AND id != ?
+                  AND start_time < ? AND end_time > ?
+            `).run(finalStart, finalStart, DEFAULT_USER_ID, id, finalStart, finalStart);
+
+            // 3. Truncate records that start before new_end but end after it
+            if (finalEnd) {
+                db.prepare(`
+                    UPDATE records 
+                    SET start_time = ?, 
+                        duration_sec = (STRFTIME('%s', REPLACE(end_time, ' ', 'T')) - STRFTIME('%s', REPLACE(?, ' ', 'T')))
+                WHERE user_id = ? AND id != ?
+                  AND start_time < ? AND end_time > ?
+                `).run(finalEnd, finalEnd, DEFAULT_USER_ID, id, finalEnd, finalEnd);
+            }
+
+            // 4. Update the target record
+            let durationSec = null;
+            if (finalStart && finalEnd) {
+                const s = new Date(finalStart.replace(' ', 'T')).getTime();
+                const e = new Date(finalEnd.replace(' ', 'T')).getTime();
+                durationSec = Math.max(0, Math.floor((e - s) / 1000));
+            }
+
+            db.prepare(`
+                UPDATE records 
+                SET start_time = ?, 
+                    end_time = ?,
+                    duration_sec = ?
+                WHERE id = ? AND user_id = ?
+            `).run(finalStart, finalEnd || null, durationSec, id, DEFAULT_USER_ID);
+        })();
+
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: err.message });

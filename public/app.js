@@ -311,6 +311,11 @@ async function submitEdit(e) {
     const startStr = document.getElementById('edit-start-time').value.replace('T', ' ');
     const endStr = document.getElementById('edit-end-time').value.replace('T', ' ');
 
+    if (endStr && new Date(startStr.replace(' ', 'T')) >= new Date(endStr.replace(' ', 'T'))) {
+        alert(t('error_start_after_end'));
+        return;
+    }
+
     try {
         const res = await fetch(`${API_BASE}/records/${id}`, {
             method: 'PUT',

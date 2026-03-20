@@ -594,13 +594,20 @@ h2 {
 }
 
 .modal-content {
+    /* position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 33%; */
     background-color: var(--surface-color);
     border: 1px solid var(--border-color);
     padding: 2rem;
     border-radius: 12px;
     width: 90%;
-    max-width: 400px;
+    max-width: 300px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    /* margin-bottom: 50%; */
+    margin-bottom: 300px;
 }
 
 .modal-content h3 {
@@ -656,7 +663,7 @@ h2 {
     top: 100%;
     left: 0;
     right: 0;
-    max-height: 200px;
+    max-height: 500px;
     overflow-y: auto;
     background: var(--surface-color);
     border: 1px solid var(--border-color);
@@ -761,6 +768,16 @@ h2 {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
+.daily-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* padding: 1.25rem; */
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s;
+}
+
 .daily-date {
     color: #fff;
     font-size: 1.1rem;
@@ -770,6 +787,7 @@ h2 {
 .daily-duration {
     font-size: 0.9rem;
     color: var(--primary-color);
+    /* margin-left: auto; */
 }
 
 .btn-toggle-day {

@@ -32,14 +32,6 @@
             <div id="error-message" class="error-message hidden"></div>
         </section>
 
-        <!-- Categories List Section -->
-        <section class="tasks-section">
-            <h2 data-i18n="header_categories">Aggregated Categories</h2>
-            <div id="categories-container" class="categories-container">
-                <!-- Category items will be injected here -->
-                <div class="loading" data-i18n="loading">Loading categories...</div>
-            </div>
-        </section>
 
         <!-- Unassigned Tasks Section -->
         <section class="unassigned-section" style="margin-top: 2rem;">
@@ -49,6 +41,16 @@
                 <div class="loading" data-i18n="loading">Loading unassigned tasks...</div>
             </div>
         </section>
+
+        <!-- Categories List Section -->
+        <section class="tasks-section">
+            <h2 data-i18n="header_categories">Aggregated Categories</h2>
+            <div id="categories-container" class="categories-container">
+                <!-- Category items will be injected here -->
+                <div class="loading" data-i18n="loading">Loading categories...</div>
+            </div>
+        </section>
+
 
         <!-- Bottom spacing since we don't have footer on this page -->
         <div style="height: 40px;"></div>
@@ -64,8 +66,8 @@
                 <div class="form-group">
                     <label data-i18n="select_category">Select Category</label>
                     <div class="searchable-select" id="searchable-category-select">
-                        <input type="text" class="searchable-select-input" id="category-search-input"
-                            autocomplete="off" data-i18n="search_category_placeholder">
+                        <input type="text" class="searchable-select-input" id="category-search-input" autocomplete="off"
+                            data-i18n="search_category_placeholder">
                         <input type="hidden" id="category-select-value">
                         <div class="searchable-select-options" id="category-options-list">
                             <!-- Options generated dynamically -->
