@@ -267,7 +267,7 @@ function renderTimeline() {
             <div class="timeline-footer">
                 <div class="timeline-time">${startDisplay} - ${endDisplay}</div>
                 <div class="timeline-actions">
-                    <button class="btn-danger-ghost" style="color: var(--text-main);" onclick="openEditModal(${record.id}, '${record.start_time}', '${record.end_time || ''}')">${t('edit')}</button>
+                    <button class="btn-danger-ghost" style="color: var(--text-main);" onclick="openEditModal(${record.id}, '${record.start_time}', '${record.end_time || ''}', '${escapeHTML(record.task_name)}')">${t('edit')}</button>
                     <button class="btn-danger-ghost" onclick="deleteRecord(${record.id})">${t('delete')}</button>
                 </div>
             </div>
@@ -297,8 +297,12 @@ function hideError() {
 }
 
 // Modals
-function openEditModal(id, startStr, endStr) {
+function openEditModal(id, startStr, endStr, taskName) {
     document.getElementById('edit-record-id').value = id;
+    const modalTitle = document.querySelector('#edit-modal h3');
+    if (modalTitle) {
+        modalTitle.textContent = `${taskName} - ${t('edit')}`;
+    }
     // Format YYYY-MM-DD HH:MM:SS to YYYY-MM-DDTHH:MM:SS for datetime-local
     document.getElementById('edit-start-time').value = startStr.replace(' ', 'T');
     document.getElementById('edit-end-time').value = endStr ? endStr.replace(' ', 'T') : '';

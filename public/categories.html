@@ -22,35 +22,41 @@
             </nav>
         </header>
 
-        <!-- Category Input Section -->
-        <section class="task-input-section">
-            <form id="add-category-form" class="task-input-form">
-                <input type="text" id="category-name-input" placeholder="Create a new aggregated category"
-                    data-i18n="cat_placeholder" required autocomplete="off">
-                <button type="submit" class="btn-primary" data-i18n="add_cat_btn">Add Category</button>
-            </form>
-            <div id="error-message" class="error-message hidden"></div>
-        </section>
+        <div class="main-layout">
+            <!-- Left Column: Categories -->
+            <div class="layout-column left">
+                <!-- Category Input Section -->
+                <section class="task-input-section">
+                    <form id="add-category-form" class="task-input-form">
+                        <input type="text" id="category-name-input" placeholder="Create a new aggregated category"
+                            data-i18n="cat_placeholder" required autocomplete="off">
+                        <button type="submit" class="btn-primary" data-i18n="add_cat_btn">Add Category</button>
+                    </form>
+                    <div id="error-message" class="error-message hidden"></div>
+                </section>
 
-
-        <!-- Unassigned Tasks Section -->
-        <section class="unassigned-section" style="margin-top: 2rem;">
-            <h2 data-i18n="header_unassigned">Unassigned Tasks</h2>
-            <div id="unassigned-container" class="categories-container">
-                <!-- Unassigned tasks will be injected here -->
-                <div class="loading" data-i18n="loading">Loading unassigned tasks...</div>
+                <!-- Categories List Section -->
+                <section class="tasks-section">
+                    <h2 data-i18n="header_categories">Aggregated Categories</h2>
+                    <div id="categories-container" class="categories-container">
+                        <!-- Category items will be injected here -->
+                        <div class="loading" data-i18n="loading">Loading categories...</div>
+                    </div>
+                </section>
             </div>
-        </section>
 
-        <!-- Categories List Section -->
-        <section class="tasks-section">
-            <h2 data-i18n="header_categories">Aggregated Categories</h2>
-            <div id="categories-container" class="categories-container">
-                <!-- Category items will be injected here -->
-                <div class="loading" data-i18n="loading">Loading categories...</div>
+            <!-- Right Column: Unassigned Tasks -->
+            <div class="layout-column right">
+                <!-- Unassigned Tasks Section -->
+                <section class="unassigned-section">
+                    <h2 data-i18n="header_unassigned">Unassigned Tasks</h2>
+                    <div id="unassigned-container" class="categories-container">
+                        <!-- Unassigned tasks will be injected here -->
+                        <div class="loading" data-i18n="loading">Loading unassigned tasks...</div>
+                    </div>
+                </section>
             </div>
-        </section>
-
+        </div>
 
         <!-- Bottom spacing since we don't have footer on this page -->
         <div style="height: 40px;"></div>

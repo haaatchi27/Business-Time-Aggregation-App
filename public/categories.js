@@ -192,7 +192,8 @@ function renderCategories() {
     categoriesContainer.innerHTML = '';
     categories.forEach(cat => {
         const item = document.createElement('div');
-        item.className = 'category-card';
+        item.className = 'category-card collapsed';
+        item.id = `category-card-${cat.id}`;
 
         const tasksHtml = cat.tasks.map(tData => `
             <div class="task-in-category">
@@ -202,20 +203,35 @@ function renderCategories() {
         `).join('') || `<div class="text-muted" style="font-size: 0.85rem;">${t('no_tasks_assigned')}</div>`;
 
         item.innerHTML = `
-            <div class="category-header">
-                <div>
-                    <h3 class="category-title">${escapeHTML(cat.name)}</h3>
-                    <div class="category-duration">${t('total_time')}: <strong>${formatDuration(cat.total_duration)}</strong></div>
-                </div>
-                <button class="btn-danger-ghost" onclick="archiveCategory(${cat.id})" title="${t('delete_category_title')}">×</button>
+            <div class="category-header" onclick="toggleCategory(${cat.id})">
+                <span class="category-toggle-icon">▼</span>
+                <h3 class="category-title">${escapeHTML(cat.name)}</h3>
+                <div class="category-duration">${t('total_time')}: <strong>${formatDuration(cat.total_duration)}</strong></div>
+                <button class="btn-danger-ghost" onclick="event.stopPropagation(); archiveCategory(${cat.id})" title="${t('delete_category_title')}">×</button>
             </div>
-            <div class="category-tasks">
+            <div class="category-tasks" style="display: none;">
                 ${tasksHtml}
             </div>
         `;
         categoriesContainer.appendChild(item);
     });
 }
+
+window.toggleCategory = function (categoryId) {
+    const card = document.getElementById(`category-card-${categoryId}`);
+    const tasks = card.querySelector('.category-tasks');
+    const icon = card.querySelector('.category-toggle-icon');
+
+    if (tasks.style.display === 'none') {
+        tasks.style.display = 'block';
+        card.classList.remove('collapsed');
+        icon.textContent = '▲';
+    } else {
+        tasks.style.display = 'none';
+        card.classList.add('collapsed');
+        icon.textContent = '▼';
+    }
+};
 
 function renderUnassigned() {
     if (unassignedTasks.length === 0) {

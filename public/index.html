@@ -22,61 +22,69 @@
             </nav>
         </header>
 
-        <!-- Timeline Section (Today's Activity) -->
-        <section class="timeline-section">
-            <div class="section-header">
-                <h2 data-i18n="header_today">Today's Timeline</h2>
-                <button id="timeline-toggle-btn" class="timeline-toggle-btn hidden"></button>
-            </div>
-            <div id="timeline-container" class="timeline-container">
-                <!-- Timeline items will be injected here -->
-                <div class="loading" data-i18n="loading">Loading timeline...</div>
-            </div>
-        </section>
-
-        <!-- Tasks List Section -->
-        <section class="tasks-section">
-            <div class="section-header">
-                <h2 data-i18n="header_tasks">Your Tasks</h2>
-                <div class="sort-container">
-                    <label for="task-sort" data-i18n="sort_label"
-                        style="font-size: 0.8rem; color: var(--text-muted);">Sort by:</label>
-                    <select id="task-sort" class="sort-select">
-                        <option value="created_at" data-i18n="sort_created">Creation Date</option>
-                        <option value="activity" data-i18n="sort_activity">Activity</option>
-                        <option value="abc" data-i18n="sort_abc">Alphabetical</option>
-                    </select>
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="task-sort-reverse">
-                        <label for="task-sort-reverse" data-i18n="sort_reverse"
-                            style="font-size: 0.8rem; color: var(--text-muted);">Reverse</label>
+        <div class="main-layout">
+            <!-- Left Column: Timeline -->
+            <div class="layout-column left">
+                <!-- Timeline Section (Today's Activity) -->
+                <section class="timeline-section">
+                    <div class="section-header">
+                        <h2 data-i18n="header_today">Today's Timeline</h2>
+                        <button id="timeline-toggle-btn" class="timeline-toggle-btn hidden"></button>
                     </div>
-                </div>
+                    <div id="timeline-container" class="timeline-container">
+                        <!-- Timeline items will be injected here -->
+                        <div class="loading" data-i18n="loading">Loading timeline...</div>
+                    </div>
+                </section>
             </div>
-            <div class="search-input-wrapper">
-                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input type="text" id="task-search-input" class="task-search-input" placeholder="Search tasks..."
-                    data-i18n="search_task_placeholder" autocomplete="off">
-            </div>
-            <div id="tasks-container" class="tasks-container">
-                <!-- Task buttons will be injected here -->
-                <div class="loading" data-i18n="loading">Loading tasks...</div>
-            </div>
-        </section>
 
-        <!-- Task Input Section -->
-        <section class="task-input-section">
-            <form id="add-task-form" class="task-input-form">
-                <input type="text" id="task-name-input" placeholder="What are you working on?"
-                    data-i18n="task_placeholder" required autocomplete="off">
-                <button type="submit" class="btn-primary" data-i18n="start_btn">Add Task</button>
-            </form>
-            <div id="error-message" class="error-message hidden"></div>
-        </section>
+            <!-- Right Column: Tasks and Input -->
+            <div class="layout-column right">
+                <!-- Tasks List Section -->
+                <section class="tasks-section">
+                    <div class="section-header">
+                        <h2 data-i18n="header_tasks">Your Tasks</h2>
+                        <div class="sort-container">
+                            <label for="task-sort" data-i18n="sort_label"
+                                style="font-size: 0.8rem; color: var(--text-muted);">Sort by:</label>
+                            <select id="task-sort" class="sort-select">
+                                <option value="created_at" data-i18n="sort_created">Creation Date</option>
+                                <option value="activity" data-i18n="sort_activity">Activity</option>
+                                <option value="abc" data-i18n="sort_abc">Alphabetical</option>
+                            </select>
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="task-sort-reverse">
+                                <label for="task-sort-reverse" data-i18n="sort_reverse"
+                                    style="font-size: 0.8rem; color: var(--text-muted);">Reverse</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="task-search-input" class="task-search-input"
+                            placeholder="Search tasks..." data-i18n="search_task_placeholder" autocomplete="off">
+                    </div>
+                    <div id="tasks-container" class="tasks-container">
+                        <!-- Task buttons will be injected here -->
+                        <div class="loading" data-i18n="loading">Loading tasks...</div>
+                    </div>
+                </section>
+
+                <!-- Task Input Section -->
+                <section class="task-input-section">
+                    <form id="add-task-form" class="task-input-form">
+                        <input type="text" id="task-name-input" placeholder="What are you working on?"
+                            data-i18n="task_placeholder" required autocomplete="off">
+                        <button type="submit" class="btn-primary" data-i18n="start_btn">Add Task</button>
+                    </form>
+                    <div id="error-message" class="error-message hidden"></div>
+                </section>
+            </div>
+        </div>
 
         <!-- Footer / Stop Button -->
         <footer class="footer">
