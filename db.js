@@ -1,21 +1,91 @@
-const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
 // Determine database path. Use environment variable or fallback to local ./data directory
 const dbPath = process.env.DB_PATH || path.join(__dirname, 'data', 'database.sqlite');
-
-// Ensure the directory exists
 const dbDir = path.dirname(dbPath);
+
 if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
 }
 
-const db = new Database(dbPath, { verbose: console.log });
+// Wrapper for sql.js to perfectly mimic better-sqlite3 synchronous API
+class BetterSqlite3Wrapper {
+    constructor(db, dbPath) {
+        this.db = db;
+        this.dbPath = dbPath;
+    }
 
-// Initialize database
-function initDb() {
-    db.exec(`
+    save() {
+        const data = this.db.export();
+        fs.writeFileSync(this.dbPath, Buffer.from(data));
+    }
+
+    prepare(sql) {
+        const self = this;
+        return {
+            all: function (...args) {
+                const stmt = self.db.prepare(sql);
+                stmt.bind(args);
+                const results = [];
+                while (stmt.step()) {
+                    results.push(stmt.getAsObject());
+                }
+                stmt.free();
+                return results;
+            },
+            get: function (...args) {
+                const stmt = self.db.prepare(sql);
+                stmt.bind(args);
+                let result = undefined;
+                if (stmt.step()) {
+                    result = stmt.getAsObject();
+                }
+                stmt.free();
+                return result;
+            },
+            run: function (...args) {
+                const stmt = self.db.prepare(sql);
+                stmt.run(args); // sql.js run accepts an array of bound params
+                stmt.free();
+                self.save(); // auto-save modifications to disk
+                return { changes: 1, lastInsertRowid: undefined };
+            }
+        };
+    }
+
+    exec(sql) {
+        this.db.run(sql);
+        this.save();
+    }
+
+    transaction(fn) {
+        return function (...args) {
+            try {
+                return fn(...args);
+            } catch (err) {
+                throw err;
+            }
+        };
+    }
+}
+
+async function initDb() {
+    const initSqlJs = require('sql.js');
+    const SQL = await initSqlJs();
+    let dbInstance;
+
+    if (fs.existsSync(dbPath)) {
+        const filebuffer = fs.readFileSync(dbPath);
+        dbInstance = new SQL.Database(filebuffer);
+    } else {
+        dbInstance = new SQL.Database();
+    }
+
+    const wrapper = new BetterSqlite3Wrapper(dbInstance, dbPath);
+
+    // Initialize Schema
+    wrapper.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL
@@ -52,34 +122,20 @@ function initDb() {
         );
     `);
 
-    try {
-        // Attempt to add category_id column if it doesn't exist
-        db.exec("ALTER TABLE tasks ADD COLUMN category_id INTEGER REFERENCES categories(id)");
-    } catch (err) {
-        // Ignore if column already exists
-    }
-
-    try {
-        // Attempt to add created_at column if it doesn't exist
-        db.exec("ALTER TABLE tasks ADD COLUMN created_at TEXT DEFAULT (DATETIME('now', 'localtime'))");
-    } catch (err) {
-        // Ignore if column already exists
-    }
+    // Migrations
+    try { wrapper.exec("ALTER TABLE tasks ADD COLUMN category_id INTEGER REFERENCES categories(id)"); } catch (err) { }
+    try { wrapper.exec("ALTER TABLE tasks ADD COLUMN created_at TEXT DEFAULT (DATETIME('now', 'localtime'))"); } catch (err) { }
 
     // Recover orphaned tasks from deleted categories
-    try {
-        db.exec("UPDATE tasks SET category_id = NULL WHERE category_id IN (SELECT id FROM categories WHERE is_deleted = 1)");
-    } catch (err) {
-        console.error('Failed to recover orphaned tasks:', err.message);
-    }
+    try { wrapper.exec("UPDATE tasks SET category_id = NULL WHERE category_id IN (SELECT id FROM categories WHERE is_deleted = 1)"); } catch (err) { }
 
     // Insert default user if not exists
-    const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get();
-    if (userCount.count === 0) {
-        db.prepare('INSERT INTO users (name) VALUES (?)').run('Default User');
+    const userCount = wrapper.prepare('SELECT COUNT(*) as count FROM users').get();
+    if (userCount && userCount.count === 0) {
+        wrapper.prepare('INSERT INTO users (name) VALUES (?)').run('Default User');
     }
+
+    return wrapper;
 }
 
-initDb();
-
-module.exports = db;
+module.exports = { init: initDb };

@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const db = require('./db.js');
+const dbLoader = require('./db.js');
+let db;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -578,6 +579,25 @@ app.put('/api/records/:id', (req, res) => {
 });
 
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+// Start Server Function
+async function startServer() {
+    // Wait for sql.js and the db wrapper to initialize
+    db = await dbLoader.init();
+
+    // Handle Execution
+    if (require.main === module) {
+        // Run directly via 'node server.js' (e.g., Docker, CLI)
+        app.listen(PORT, () => {
+            console.log(`Server is running on http://localhost:${PORT}`);
+        });
+    }
+
+    return app;
+}
+
+if (require.main === module) {
+    startServer();
+} else {
+    // Export async init function for Electron to await
+    module.exports = startServer;
+}

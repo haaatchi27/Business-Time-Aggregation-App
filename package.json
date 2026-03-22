@@ -2,15 +2,42 @@
   "name": "time-tracking-app",
   "version": "1.0.0",
   "description": "業務時間集計アプリ",
-  "main": "server.js",
+  "main": "main.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "init-db": "node init-db.js"
+    "init-db": "node init-db.js",
+    "electron:start": "electron .",
+    "build:win": "electron-builder --win"
   },
   "dependencies": {
-    "better-sqlite3": "^9.4.1",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "sql.js": "^1.11.0"
+  },
+  "build": {
+    "appId": "com.antigravity.activitytracker",
+    "productName": "Activity Tracker",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "files": [
+      "**/*",
+      "!data",
+      "!.env",
+      "!.git",
+      "!Dockerfile",
+      "!docker-compose.yml",
+      "!*.md",
+      "!*.sh",
+      "!*.bat"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^26.8.1"
   }
 }
