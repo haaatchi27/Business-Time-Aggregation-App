@@ -362,6 +362,93 @@ app.get('/api/reports/weekly', (req, res) => {
     }
 });
 
+app.get('/api/reports/monthly', (req, res) => {
+    try {
+        const recordsRaw = db.prepare(`
+            SELECT 
+                r.start_time, 
+                r.duration_sec,
+                t.id as task_id,
+                t.name as task_name,
+                c.id as category_id,
+                c.name as category_name
+            FROM records r
+            JOIN tasks t ON r.task_id = t.id
+            LEFT JOIN categories c ON t.category_id = c.id
+            WHERE r.user_id = ? AND r.duration_sec IS NOT NULL
+            ORDER BY r.start_time DESC
+        `).all(DEFAULT_USER_ID);
+
+        const monthlyData = {};
+
+        recordsRaw.forEach(record => {
+            if (!record.start_time) return;
+            // Extract YYYY-MM
+            const monthStr = record.start_time.split(' ')[0].substring(0, 7);
+
+            if (!monthlyData[monthStr]) {
+                monthlyData[monthStr] = {
+                    date: monthStr,
+                    total_duration: 0,
+                    categories: {},
+                    unassigned_tasks: {}
+                };
+            }
+
+            const monthObj = monthlyData[monthStr];
+            const duration = record.duration_sec || 0;
+            monthObj.total_duration += duration;
+
+            if (record.category_id) {
+                if (!monthObj.categories[record.category_id]) {
+                    monthObj.categories[record.category_id] = {
+                        id: record.category_id,
+                        name: record.category_name,
+                        total_duration: 0,
+                        tasks: {}
+                    };
+                }
+                const catObj = monthObj.categories[record.category_id];
+                catObj.total_duration += duration;
+
+                if (!catObj.tasks[record.task_id]) {
+                    catObj.tasks[record.task_id] = {
+                        id: record.task_id,
+                        name: record.task_name,
+                        total_duration: 0
+                    };
+                }
+                catObj.tasks[record.task_id].total_duration += duration;
+            } else {
+                if (!monthObj.unassigned_tasks[record.task_id]) {
+                    monthObj.unassigned_tasks[record.task_id] = {
+                        id: record.task_id,
+                        name: record.task_name,
+                        total_duration: 0
+                    };
+                }
+                monthObj.unassigned_tasks[record.task_id].total_duration += duration;
+            }
+        });
+
+        const result = Object.values(monthlyData).map(month => {
+            return {
+                date: month.date,
+                total_duration: month.total_duration,
+                categories: Object.values(month.categories).map(cat => ({
+                    ...cat,
+                    tasks: Object.values(cat.tasks).sort((a, b) => b.total_duration - a.total_duration)
+                })).sort((a, b) => b.total_duration - a.total_duration),
+                unassigned_tasks: Object.values(month.unassigned_tasks).sort((a, b) => b.total_duration - a.total_duration)
+            };
+        }).sort((a, b) => b.date.localeCompare(a.date));
+
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get('/api/reports/by-category', (req, res) => {
     try {
         const recordsRaw = db.prepare(`

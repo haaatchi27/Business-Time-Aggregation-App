@@ -2,7 +2,7 @@ const API_BASE = '/api';
 
 // State
 let reportsData = [];
-let currentMode = 'daily'; // 'daily' or 'weekly'
+let currentMode = 'daily'; // 'daily', 'weekly', 'monthly', or 'by-category'
 
 // DOM Elements
 const reportsContainer = document.getElementById('reports-container');
@@ -11,11 +11,18 @@ const template = document.getElementById('report-card-template');
 const reportHeader = document.getElementById('report-header');
 const btnDaily = document.getElementById('btn-daily');
 const btnWeekly = document.getElementById('btn-weekly');
+const btnMonthly = document.getElementById('btn-monthly');
 const btnCategory = document.getElementById('btn-category');
+
+// Edit Modal Elements
+const editModal = document.getElementById('edit-modal');
+const editForm = document.getElementById('edit-record-form');
+const cancelEditBtn = document.getElementById('cancel-edit-btn');
 
 // Initialize
 async function init() {
     setupModeToggle();
+    setupEventListeners();
     await fetchReports();
 }
 
@@ -24,6 +31,7 @@ async function fetchReports() {
     try {
         let endpoint = 'daily';
         if (currentMode === 'weekly') endpoint = 'weekly';
+        if (currentMode === 'monthly') endpoint = 'monthly';
         if (currentMode === 'by-category') endpoint = 'by-category';
 
         const res = await fetch(`${API_BASE}/reports/${endpoint}`);
@@ -35,12 +43,16 @@ async function fetchReports() {
     }
 }
 
+function setActiveButton(activeBtn) {
+    [btnDaily, btnWeekly, btnMonthly, btnCategory].forEach(btn => btn.classList.remove('active'));
+    activeBtn.classList.add('active');
+}
+
 function setupModeToggle() {
     btnDaily.addEventListener('click', () => {
         if (currentMode === 'daily') return;
         currentMode = 'daily';
-        btnDaily.classList.add('active');
-        btnWeekly.classList.remove('active');
+        setActiveButton(btnDaily);
         reportHeader.setAttribute('data-i18n', 'header_daily');
         applyTranslations();
         fetchReports();
@@ -49,10 +61,17 @@ function setupModeToggle() {
     btnWeekly.addEventListener('click', () => {
         if (currentMode === 'weekly') return;
         currentMode = 'weekly';
-        btnWeekly.classList.add('active');
-        btnDaily.classList.remove('active');
-        btnCategory.classList.remove('active');
+        setActiveButton(btnWeekly);
         reportHeader.setAttribute('data-i18n', 'header_weekly');
+        applyTranslations();
+        fetchReports();
+    });
+
+    btnMonthly.addEventListener('click', () => {
+        if (currentMode === 'monthly') return;
+        currentMode = 'monthly';
+        setActiveButton(btnMonthly);
+        reportHeader.setAttribute('data-i18n', 'header_monthly');
         applyTranslations();
         fetchReports();
     });
@@ -60,9 +79,7 @@ function setupModeToggle() {
     btnCategory.addEventListener('click', () => {
         if (currentMode === 'by-category') return;
         currentMode = 'by-category';
-        btnCategory.classList.add('active');
-        btnDaily.classList.remove('active');
-        btnWeekly.classList.remove('active');
+        setActiveButton(btnCategory);
         reportHeader.setAttribute('data-i18n', 'header_category');
         applyTranslations();
         fetchReports();
@@ -98,6 +115,15 @@ function renderStandardReports() {
         let displayDate = item.date;
         if (currentMode === 'weekly') {
             displayDate = `${t('week_of')}${item.date}`;
+        } else if (currentMode === 'monthly') {
+            // Format YYYY-MM to a readable month display
+            const [year, month] = item.date.split('-');
+            if (t('year_label')) {
+                displayDate = `${year}年${parseInt(month)}月`;
+            } else {
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                displayDate = `${monthNames[parseInt(month) - 1]} ${year}`;
+            }
         }
 
         clone.querySelector('.daily-date').textContent = displayDate;
@@ -118,6 +144,12 @@ function renderStandardReports() {
                 e.stopPropagation();
                 downloadCSV(item);
             });
+        }
+
+        // Hide timetable for weekly/monthly modes (no timeline data)
+        if (currentMode === 'weekly' || currentMode === 'monthly') {
+            const ttSection = clone.querySelector('.timetable-section');
+            if (ttSection) ttSection.style.display = 'none';
         }
 
         // Categories & Unassigned
@@ -170,21 +202,29 @@ function renderStandardReports() {
             table.innerHTML = `
                 <thead>
                     <tr>
+                        <th data-i18n="task_name_label">Task</th>
                         <th data-i18n="start_time_label">Start</th>
                         <th data-i18n="end_time_label">End</th>
-                        <th data-i18n="task_name_label">Task</th>
-                        <th style="text-align: right;">Time</th>
+                        <th style="text-align: right;" data-i18n="duration">Duration</th>
+                        <th style="text-align: right;"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${item.timeline.map(record => `
+                    ${item.timeline.map(record => {
+                const isRunning = !record.end_time;
+                const endDisplay = isRunning ? t('now_label') : formatTimeOnly(record.end_time);
+                const durationDisplay = isRunning ? '-' : formatDuration(record.duration_sec);
+                return `
                         <tr>
-                            <td class="timetable-time-col">${formatTimeOnly(record.start_time)}</td>
-                            <td class="timetable-time-col">${formatTimeOnly(record.end_time)}</td>
                             <td class="timetable-task-col">${escapeHTML(record.task_name)}</td>
-                            <td class="timetable-duration-col">${formatDuration(record.duration_sec)}</td>
+                            <td class="timetable-time-col">${formatTimeOnly(record.start_time)}</td>
+                            <td class="timetable-time-col">${endDisplay}</td>
+                            <td class="timetable-duration-col">${durationDisplay}</td>
+                            <td style="text-align: right;">
+                                <button class="btn-danger-ghost" style="color: var(--text-main); font-size: 0.8rem; padding: 0.2rem 0.5rem;" onclick="openEditModal(${record.id}, '${record.start_time}', '${record.end_time || ''}', '${escapeHTML(record.task_name)}')">${t('edit')}</button>
+                            </td>
                         </tr>
-                    `).join('')}
+                    `}).join('')}
                 </tbody>
             `;
             timetableContainer.appendChild(table);
@@ -209,6 +249,10 @@ function renderCategoryReports() {
 
         // Mode specific adjustments
         chartWrapper.style.display = 'none';
+
+        // Hide timetable in category view
+        const ttSection = clone.querySelector('.timetable-section');
+        if (ttSection) ttSection.style.display = 'none';
 
         const catName = cat.name || t('unassigned_group');
         const totalDuration = cat.weeks.reduce((sum, w) => sum + w.total_duration, 0);
@@ -416,6 +460,53 @@ function downloadCSV(item) {
     link.download = `report_${item.date}.csv`;
     link.click();
     URL.revokeObjectURL(url);
+}
+
+// Edit Modal & Events
+function setupEventListeners() {
+    if (editForm) editForm.addEventListener('submit', submitEdit);
+    if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => editModal.classList.add('hidden'));
+}
+
+function openEditModal(id, startStr, endStr, taskName) {
+    document.getElementById('edit-record-id').value = id;
+    const modalTitle = document.querySelector('#edit-modal h3');
+    if (modalTitle) {
+        modalTitle.textContent = `${taskName} - ${t('edit')}`;
+    }
+    // Format YYYY-MM-DD HH:MM:SS to YYYY-MM-DDTHH:MM:SS for datetime-local
+    document.getElementById('edit-start-time').value = startStr.replace(' ', 'T');
+    document.getElementById('edit-end-time').value = endStr ? endStr.replace(' ', 'T') : '';
+    editModal.classList.remove('hidden');
+}
+
+async function submitEdit(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-record-id').value;
+    const startStr = document.getElementById('edit-start-time').value.replace('T', ' ');
+    const endStr = document.getElementById('edit-end-time').value.replace('T', ' ');
+
+    if (endStr && new Date(startStr.replace(' ', 'T')) >= new Date(endStr.replace(' ', 'T'))) {
+        alert(t('error_start_after_end'));
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/records/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                start_time: startStr,
+                end_time: endStr || null
+            })
+        });
+        if (!res.ok) throw new Error('Failed to update record');
+
+        editModal.classList.add('hidden');
+        await fetchReports();
+    } catch (err) {
+        alert("Error: " + err.message);
+    }
 }
 
 // Re-render when language changes

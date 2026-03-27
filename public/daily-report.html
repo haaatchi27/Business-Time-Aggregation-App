@@ -16,18 +16,20 @@
         <!-- Header -->
         <header class="header">
             <h1 data-i18n="title">Activity Tracker</h1>
-            <p class="subtitle" data-i18n="subtitle_daily">View your daily/weekly time aggregation.</p>
             <nav class="nav-menu" style="margin-top: 1rem;">
                 <a href="index.html" class="nav-link" data-i18n="nav_home">Home</a>
                 <a href="categories.html" class="nav-link" data-i18n="nav_categories">Categories / Summary</a>
                 <a href="daily-report.html" class="nav-link active" data-i18n="nav_daily">Daily Report</a>
             </nav>
+            <p class="subtitle" data-i18n="subtitle_daily" style="margin-top: 0.5rem;">View your daily/weekly time
+                aggregation.</p>
         </header>
 
         <!-- View Toggle -->
         <div class="report-toggle">
             <button id="btn-daily" class="toggle-btn active" data-i18n="mode_daily">Daily</button>
             <button id="btn-weekly" class="toggle-btn" data-i18n="mode_weekly">Weekly</button>
+            <button id="btn-monthly" class="toggle-btn" data-i18n="mode_monthly">Monthly</button>
             <button id="btn-category" class="toggle-btn" data-i18n="mode_category">By Category</button>
         </div>
 
@@ -78,6 +80,28 @@
             </div>
         </div>
     </template>
+
+    <!-- Edit Record Modal -->
+    <div id="edit-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 data-i18n="edit_modal_title">Edit Record</h3>
+            <form id="edit-record-form">
+                <input type="hidden" id="edit-record-id">
+                <div class="form-group">
+                    <label for="edit-start-time" data-i18n="start_time_label">Start Time</label>
+                    <input type="datetime-local" id="edit-start-time" step="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-end-time" data-i18n="end_time_label">End Time</label>
+                    <input type="datetime-local" id="edit-end-time" step="1">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-edit-btn" class="btn-secondary" data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-primary" data-i18n="save_changes">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="i18n.js"></script>
     <script src="daily-report.js"></script>

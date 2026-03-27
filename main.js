@@ -15,7 +15,9 @@ let serverInstance;
 function createWindow(port) {
     mainWindow = new BrowserWindow({
         width: 1200,
+        minWidth: 400,
         height: 800,
+        minHeight: 800,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true

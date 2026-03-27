@@ -1030,11 +1030,14 @@ h2 {
 /* Responsive Layout (800px-) */
 @media (max-width: 799px) {
     .main-layout {
-        display: block;
-        /* ← flex を解除して縦並びに戻す */
+        display: flex;
+        flex-direction: column;
         gap: 2rem;
-        /* gap は block では効かないので注意 */
-        align-items: flex-start;
+        align-items: stretch;
+    }
+
+    .main-layout.categories-layout {
+        flex-direction: column-reverse;
     }
 
     .layout-column.left,
