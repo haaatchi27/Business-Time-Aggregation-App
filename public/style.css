@@ -497,7 +497,7 @@ h2 {
 .task-search-input {
     /* width: 100%; */
     width: calc(100% - 40px);
-    padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+    padding: 0.5rem 2.25rem 0.5rem 2.25rem;
     background: var(--bg-color);
     color: var(--text-main);
     border: 1px solid var(--border-color);
@@ -508,6 +508,32 @@ h2 {
     transition: border-color 0.2s, box-shadow 0.2s;
     /* ← 左マージンを追加 */
     margin-left: 40px;
+}
+
+.task-search-clear {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    transition: color 0.15s, background-color 0.15s;
+    font-weight: 600;
+}
+
+.task-search-clear:hover {
+    color: var(--text-main);
+    background-color: var(--surface-hover);
 }
 
 .task-search-input:focus {

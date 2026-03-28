@@ -16,6 +16,7 @@ const stopBtn = document.getElementById('stop-button');
 const taskSortSelect = document.getElementById('task-sort');
 const taskSortReverse = document.getElementById('task-sort-reverse');
 const taskSearchInput = document.getElementById('task-search-input');
+const taskSearchClear = document.getElementById('task-search-clear');
 const timelineToggleBtn = document.getElementById('timeline-toggle-btn');
 
 const editModal = document.getElementById('edit-modal');
@@ -390,7 +391,25 @@ function setupEventListeners() {
 
     taskSortSelect.addEventListener('change', renderTasks);
     taskSortReverse.addEventListener('change', renderTasks);
-    taskSearchInput.addEventListener('input', renderTasks);
+    taskSearchInput.addEventListener('input', () => {
+        if (taskSearchClear) {
+            if (taskSearchInput.value.length > 0) {
+                taskSearchClear.classList.remove('hidden');
+            } else {
+                taskSearchClear.classList.add('hidden');
+            }
+        }
+        renderTasks();
+    });
+
+    if (taskSearchClear) {
+        taskSearchClear.addEventListener('click', () => {
+            taskSearchInput.value = '';
+            taskSearchClear.classList.add('hidden');
+            taskSearchInput.focus();
+            renderTasks();
+        });
+    }
     if (timelineToggleBtn) {
         timelineToggleBtn.addEventListener('click', () => {
             showAllTimeline = !showAllTimeline;

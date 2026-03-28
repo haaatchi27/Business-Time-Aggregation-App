@@ -121,7 +121,8 @@ npm start
 
 > [!TIP]
 > 各レポートカードのヘッダーをクリックすると詳細が展開されます。
-
+> app モードで起動すると、ブラウザ既定の最小幅より細く表示k左脳です。
+> chrome.exe --app=http://localhost:3000 --window-size=400,800
 ---
 
 ## 多言語対応
@@ -151,3 +152,22 @@ ports:
 
 ### Q: タイムゾーンがずれる
 `docker-compose.yml` の `TZ` 環境変数を確認してください（デフォルト: `Asia/Tokyo`）。
+
+
+### 使用イメージ
+### ホーム画面
+![使用イメージ 800pix 未満](usage-img/main_lt_800pix.png)
+![使用イメージ 800pix 以上](usage-img/main_ge_800pix.png)
+
+### 集計・カテゴリー管理画面
+#### カテゴリー管理画面
+![使用イメージ 800pix 未満](usage-img/category_lt_800pix.png)
+![使用イメージ 800pix 以上](usage-img/category_ge_800pix.png)
+
+#### カテゴリー割り当て画面
+![使用イメージ 800pix 未満](usage-img/assign_lt_800pix.png)
+![使用イメージ 800pix 以上](usage-img/assign_ge_800pix.png)
+
+### レポート画面
+![使用イメージ 800pix 未満](usage-img/report_lt_800pix.png)
+![使用イメージ 800pix 以上](usage-img/report_ge_800pix.png)
