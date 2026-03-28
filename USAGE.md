@@ -73,7 +73,13 @@ npm start
 4. 全ての作業が終わったら「計測ストップ」で停止
 
 > [!NOTE]
-> タスクは一度追加すれば繰り返し使えます。不要になったタスクはアーカイブ（非表示）にできます。
+> タスクは一度追加すれば繰り返し使えます。不要になったタスクは削除（タスク一覧からのみ）できます。
+
+
+### ホーム画面
+| ホーム画面 (800px未満) | ホーム画面 (800px以上) |
+|:---:|:---:|
+| <img alt="ホーム画面 800pix 未満" src="usage-img/main_lt_800pix.png" height="600"> | <img alt="ホーム画面 800pix 以上" src="usage-img/main_ge_800pix.png" height="600"> |
 
 ---
 
@@ -94,6 +100,18 @@ npm start
 2. 既存タスクを適切なカテゴリーに割り当て
 3. レポート画面で、カテゴリー単位の集計を確認
 
+> [!TIP]
+カテゴリーを選択 画面は検索機能があるため絞り込みができます。
+### 集計・カテゴリー管理画面
+#### カテゴリー管理画面
+| 800px未満 | 800px以上 |
+|:---:|:---:|
+| <img alt="カテゴリー管理画面 800pix 未満" src="usage-img/category_lt_800pix.png" height="600"> | <img alt="カテゴリー管理画面 800pix 以上" src="usage-img/category_ge_800pix.png" height="600"> |
+
+#### カテゴリー割り当て画面
+| 800px未満 | 800px以上 |
+|:---:|:---:|
+| <img alt="カテゴリー割り当て画面 800pix 未満" src="usage-img/assign_category_lt_800pix.png" height="600"> | <img alt="カテゴリー割り当て画面 800pix 以上" src="usage-img/assign_category_ge_800pix.png" height="600"> |
 ---
 
 ### レポート画面
@@ -105,6 +123,9 @@ npm start
 - ドーナツチャートでカテゴリー別の時間配分を可視化
 - タイムテーブルで各記録の開始・終了時刻を確認
 - CSV ダウンロード機能つき
+
+> [!TIP]
+> CSV ダウンロードしたファイルは別途CSVインポートのアドオンを使用することで、集計画面での入力を諸略できます。
 
 #### 週別レポート
 - 月曜始まりの週ごとに集計
@@ -123,6 +144,11 @@ npm start
 > 各レポートカードのヘッダーをクリックすると詳細が展開されます。
 > app モードで起動すると、ブラウザ既定の最小幅より細く表示可能です。
 > chrome.exe --app=http://localhost:3000 --window-size=400,800
+
+### レポート画面  
+| 800px未満 | 800px以上 |
+|:---:|:---:|
+| <img alt="レポート画面 800pix 未満" src="usage-img/report_lt_800pix.png" height="600"> | <img alt="レポート画面 800pix 以上" src="usage-img/report_ge_800pix.png" height="600"> |
 ---
 
 ## 多言語対応
@@ -170,9 +196,9 @@ ports:
 #### カテゴリー割り当て画面
 | 800px未満 | 800px以上 |
 |:---:|:---:|
-| <img alt="カテゴリー割り当て画面 800pix 未満" src="usage-img/assign_lt_800pix.png" height="600"> | <img alt="カテゴリー割り当て画面 800pix 以上" src="usage-img/assign_ge_800pix.png" height="600"> |
+| <img alt="カテゴリー割り当て画面 800pix 未満" src="usage-img/assign_category_lt_800pix.png" height="600"> | <img alt="カテゴリー割り当て画面 800pix 以上" src="usage-img/assign_category_ge_800pix.png" height="600"> |
 
-### レポート画面
+### レポート画面  
 | 800px未満 | 800px以上 |
 |:---:|:---:|
 | <img alt="レポート画面 800pix 未満" src="usage-img/report_lt_800pix.png" height="600"> | <img alt="レポート画面 800pix 以上" src="usage-img/report_ge_800pix.png" height="600"> |
