@@ -179,7 +179,7 @@ ports:
 ### Q: タイムゾーンがずれる
 `docker-compose.yml` の `TZ` 環境変数を確認してください（デフォルト: `Asia/Tokyo`）。
 
-
+<!-- 
 ### 使用イメージ
 
 ### ホーム画面
@@ -201,4 +201,4 @@ ports:
 ### レポート画面  
 | 800px未満 | 800px以上 |
 |:---:|:---:|
-| <img alt="レポート画面 800pix 未満" src="usage-img/report_lt_800pix.png" height="600"> | <img alt="レポート画面 800pix 以上" src="usage-img/report_ge_800pix.png" height="600"> |
+| <img alt="レポート画面 800pix 未満" src="usage-img/report_lt_800pix.png" height="600"> | <img alt="レポート画面 800pix 以上" src="usage-img/report_ge_800pix.png" height="600"> | -->
