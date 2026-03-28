@@ -1,5 +1,5 @@
 # Use a lightweight Node.js image
-FROM node:20-alpine
+FROM docker.io/library/node:20-alpine
 
 # Set the working directory inside the container
 WORKDIR /app
