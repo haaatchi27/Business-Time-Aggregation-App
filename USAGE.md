@@ -156,18 +156,18 @@ ports:
 
 ### 使用イメージ
 ### ホーム画面
-![使用イメージ 800pix 未満](usage-img/main_lt_800pix.png)
-![使用イメージ 800pix 以上](usage-img/main_ge_800pix.png)
+<img alt="ホーム画面 800pix 未満" src="usage-img/main_lt_800pix.png" height="800">
+<img alt="ホーム画面 800pix 以上" src="usage-img/main_ge_800pix.png" height="800">
 
 ### 集計・カテゴリー管理画面
 #### カテゴリー管理画面
-![使用イメージ 800pix 未満](usage-img/category_lt_800pix.png)
-![使用イメージ 800pix 以上](usage-img/category_ge_800pix.png)
+<img alt="カテゴリー管理画面 800pix 未満" src="usage-img/category_lt_800pix.png" height="800">
+<img alt="カテゴリー管理画面 800pix 以上" src="usage-img/category_ge_800pix.png" height="800">
 
 #### カテゴリー割り当て画面
-![使用イメージ 800pix 未満](usage-img/assign_lt_800pix.png)
-![使用イメージ 800pix 以上](usage-img/assign_ge_800pix.png)
+<img alt="カテゴリー割り当て画面 800pix 未満" src="usage-img/assign_lt_800pix.png" height="800">
+<img alt="カテゴリー割り当て画面 800pix 以上" src="usage-img/assign_ge_800pix.png" height="800">
 
 ### レポート画面
-![使用イメージ 800pix 未満](usage-img/report_lt_800pix.png)
-![使用イメージ 800pix 以上](usage-img/report_ge_800pix.png)
+<img alt="レポート画面 800pix 未満" src="usage-img/report_lt_800pix.png" height="800">
+<img alt="レポート画面 800pix 以上" src="usage-img/report_ge_800pix.png" height="800">
