@@ -20,5 +20,5 @@ yarn-error.log*
 # Build
 dist/*
 
-# # trash
-# trash/*
+# trash
+trash/*
