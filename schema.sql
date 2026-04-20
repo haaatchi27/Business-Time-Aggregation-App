@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS categories (
     user_id INTEGER,
     name TEXT NOT NULL,
     is_deleted INTEGER DEFAULT 0,
+    is_excluded INTEGER DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 -- Tasks table

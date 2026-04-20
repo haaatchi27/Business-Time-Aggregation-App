@@ -171,6 +171,19 @@ app.put('/api/categories/:id/archive', (req, res) => {
     }
 });
 
+app.put('/api/categories/:id/toggle-exclude', (req, res) => {
+    const id = Number(req.params.id);
+    try {
+        const cat = db.prepare('SELECT is_excluded FROM categories WHERE id = ? AND user_id = ?').get(id, DEFAULT_USER_ID);
+        if (!cat) return res.status(404).json({ error: 'Category not found' });
+        const newVal = cat.is_excluded ? 0 : 1;
+        db.prepare('UPDATE categories SET is_excluded = ? WHERE id = ? AND user_id = ?').run(newVal, id, DEFAULT_USER_ID);
+        res.json({ success: true, is_excluded: newVal });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Reports
 app.get('/api/reports/daily', (req, res) => {
     try {
@@ -184,7 +197,8 @@ app.get('/api/reports/daily', (req, res) => {
                 t.id as task_id,
                 t.name as task_name,
                 c.id as category_id,
-                c.name as category_name
+                c.name as category_name,
+                COALESCE(c.is_excluded, 0) as is_excluded
             FROM records r
             JOIN tasks t ON r.task_id = t.id
             LEFT JOIN categories c ON t.category_id = c.id
@@ -211,7 +225,10 @@ app.get('/api/reports/daily', (req, res) => {
 
             const dayObj = dailyData[dateStr];
             const duration = record.duration_sec || 0;
-            dayObj.total_duration += duration;
+            // Only add to total if not excluded
+            if (!record.is_excluded) {
+                dayObj.total_duration += duration;
+            }
 
             // Add to timeline
             dayObj.timeline.push({
@@ -228,6 +245,7 @@ app.get('/api/reports/daily', (req, res) => {
                     dayObj.categories[record.category_id] = {
                         id: record.category_id,
                         name: record.category_name,
+                        is_excluded: record.is_excluded ? 1 : 0,
                         total_duration: 0,
                         tasks: {}
                     };
@@ -285,7 +303,8 @@ app.get('/api/reports/weekly', (req, res) => {
                 t.id as task_id,
                 t.name as task_name,
                 c.id as category_id,
-                c.name as category_name
+                c.name as category_name,
+                COALESCE(c.is_excluded, 0) as is_excluded
             FROM records r
             JOIN tasks t ON r.task_id = t.id
             LEFT JOIN categories c ON t.category_id = c.id
@@ -310,7 +329,9 @@ app.get('/api/reports/weekly', (req, res) => {
 
             const weekObj = weeklyData[weekStart];
             const duration = record.duration_sec || 0;
-            weekObj.total_duration += duration;
+            if (!record.is_excluded) {
+                weekObj.total_duration += duration;
+            }
 
             if (record.category_id) {
                 if (!weekObj.categories[record.category_id]) {
@@ -371,7 +392,8 @@ app.get('/api/reports/monthly', (req, res) => {
                 t.id as task_id,
                 t.name as task_name,
                 c.id as category_id,
-                c.name as category_name
+                c.name as category_name,
+                COALESCE(c.is_excluded, 0) as is_excluded
             FROM records r
             JOIN tasks t ON r.task_id = t.id
             LEFT JOIN categories c ON t.category_id = c.id
@@ -397,7 +419,9 @@ app.get('/api/reports/monthly', (req, res) => {
 
             const monthObj = monthlyData[monthStr];
             const duration = record.duration_sec || 0;
-            monthObj.total_duration += duration;
+            if (!record.is_excluded) {
+                monthObj.total_duration += duration;
+            }
 
             if (record.category_id) {
                 if (!monthObj.categories[record.category_id]) {

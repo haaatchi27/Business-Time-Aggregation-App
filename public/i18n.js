@@ -57,6 +57,11 @@ const translations = {
         "save_changes": "Save Changes",
         "select_category": "Select Category",
         "search_category_placeholder": "Search categories...",
+        "exclude_flag": "Exclude from totals",
+        "exclude_flag_on": "Excluded",
+        "exclude_flag_off": "Included",
+        "toggle_exclude_title": "Toggle exclusion from aggregation totals",
+        "cat_filter_placeholder": "Filter registered categories...",
 
         // Daily View (daily-report.html & daily-report.js)
         "header_daily": "Daily Aggregation",
@@ -138,6 +143,11 @@ const translations = {
         "save_changes": "保存する",
         "select_category": "カテゴリーを選択",
         "search_category_placeholder": "カテゴリーを検索...",
+        "exclude_flag": "集計対象外",
+        "exclude_flag_on": "対象外",
+        "exclude_flag_off": "集計対象",
+        "toggle_exclude_title": "合計時間・CSVエクスポートの集計対象から除外する",
+        "cat_filter_placeholder": "登録済みカテゴリーを絞り込み...",
 
         // Daily View
         "header_daily": "日別レポート",

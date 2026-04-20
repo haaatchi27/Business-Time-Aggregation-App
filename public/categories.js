@@ -7,6 +7,7 @@ let unassignedTasks = [];
 // DOM Elements
 const categoryForm = document.getElementById('add-category-form');
 const categoryInput = document.getElementById('category-name-input');
+
 const errorMsg = document.getElementById('error-message');
 const categoriesContainer = document.getElementById('categories-container');
 const unassignedContainer = document.getElementById('unassigned-container');
@@ -184,15 +185,24 @@ function renderData() {
 }
 
 function renderCategories() {
-    if (categories.length === 0) {
-        categoriesContainer.innerHTML = `<p class="text-muted">${t('no_cat')}</p>`;
+    const filterText = (categoryInput ? categoryInput.value : '').toLowerCase().trim();
+    const filtered = filterText
+        ? categories.filter(cat => cat.name.toLowerCase().includes(filterText))
+        : categories;
+
+    if (filtered.length === 0) {
+        if (categories.length === 0) {
+            categoriesContainer.innerHTML = `<p class="text-muted">${t('no_cat')}</p>`;
+        } else {
+            categoriesContainer.innerHTML = `<p class="text-muted" style="font-size:0.9rem;">該当するカテゴリーがありません。</p>`;
+        }
         return;
     }
 
     categoriesContainer.innerHTML = '';
-    categories.forEach(cat => {
+    filtered.forEach(cat => {
         const item = document.createElement('div');
-        item.className = 'category-card collapsed';
+        item.className = 'category-card collapsed' + (cat.is_excluded ? ' cat-excluded' : '');
         item.id = `category-card-${cat.id}`;
 
         const tasksHtml = cat.tasks.map(tData => `
@@ -202,11 +212,15 @@ function renderCategories() {
             </div>
         `).join('') || `<div class="text-muted" style="font-size: 0.85rem;">${t('no_tasks_assigned')}</div>`;
 
+        const excludeLabel = cat.is_excluded ? t('exclude_flag_on') : t('exclude_flag_off');
+        const excludeClass = cat.is_excluded ? 'btn-exclude active' : 'btn-exclude';
+
         item.innerHTML = `
             <div class="category-header" onclick="toggleCategory(${cat.id})">
                 <span class="category-toggle-icon">▼</span>
                 <h3 class="category-title">${escapeHTML(cat.name)}</h3>
                 <div class="category-duration">${t('total_time')}: <strong>${formatDuration(cat.total_duration)}</strong></div>
+                <button class="${excludeClass}" onclick="event.stopPropagation(); toggleExcludeCategory(${cat.id})" title="${t('toggle_exclude_title')}">${excludeLabel}</button>
                 <button class="btn-danger-ghost" onclick="event.stopPropagation(); archiveCategory(${cat.id})" title="${t('delete_category_title')}">×</button>
             </div>
             <div class="category-tasks" style="display: none;">
@@ -284,12 +298,25 @@ function formatDuration(seconds) {
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
+// Actions
+async function toggleExcludeCategory(categoryId) {
+    try {
+        const res = await fetch(`${API_BASE}/categories/${categoryId}/toggle-exclude`, { method: 'PUT' });
+        if (!res.ok) throw new Error('Failed to toggle exclude');
+        await fetchData();
+    } catch (err) {
+        showError(err.message);
+    }
+}
+
 // Event Listeners
 function setupEventListeners() {
     categoryForm.addEventListener('submit', addCategory);
     assignForm.addEventListener('submit', submitAssignment);
     cancelAssignBtn.addEventListener('click', () => assignModal.classList.add('hidden'));
 
+    // Filter categories as user types in category-name-input
+    categoryInput.addEventListener('input', () => renderCategories());
     // Searchable dropdown events
     categorySearchInput.addEventListener('focus', () => {
         searchableSelect.classList.add('open');

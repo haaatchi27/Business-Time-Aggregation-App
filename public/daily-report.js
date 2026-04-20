@@ -435,10 +435,12 @@ function roundTo30MinHours(seconds) {
 
 function downloadCSV(item) {
     const dateStr = item.date.replace(/-/g, '/');
-    const lines = [dateStr];
+    const totalHours = roundTo30MinHours(item.total_duration);
+    const lines = [`${dateStr} ${totalHours.toFixed(1)}`];
 
-    // Categories
+    // Categories (skip excluded)
     item.categories.forEach(cat => {
+        if (cat.is_excluded) return;
         const hours = roundTo30MinHours(cat.total_duration);
         lines.push(`${cat.name}, ${hours.toFixed(1)}`);
     });
