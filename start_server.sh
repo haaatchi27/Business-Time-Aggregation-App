@@ -34,6 +34,8 @@ if [ "$1" == "restart" ]; then
     fi  
 
     docker compose up -d --build
+    echo "access http://localhost:3000 via browser"
+
     exit 0
 fi
 
@@ -46,4 +48,6 @@ if [ -n "$IS_RUNNING" ]; then
 else
     echo "Service '$SERVICE_NAME' is not running. Starting now..."
      docker compose up -d
+
+     echo "access http://localhost:3000 via browser"
 fi

@@ -19,6 +19,16 @@ const editModal = document.getElementById('edit-modal');
 const editForm = document.getElementById('edit-record-form');
 const cancelEditBtn = document.getElementById('cancel-edit-btn');
 
+// Add Modal Elements
+const addModal = document.getElementById('add-modal');
+const addForm = document.getElementById('add-record-form');
+const cancelAddBtn = document.getElementById('cancel-add-btn');
+const addTaskInput = document.getElementById('add-task-input');
+const addTaskId = document.getElementById('add-task-id');
+const addTaskOptions = document.getElementById('add-task-options');
+const addTaskDropdown = document.getElementById('add-task-dropdown');
+let allTasks = [];
+
 // Initialize
 async function init() {
     setupModeToggle();
@@ -146,6 +156,18 @@ function renderStandardReports() {
             });
         }
 
+        const addRecordBtn = clone.querySelector('.btn-add-record');
+        if (addRecordBtn) {
+            if (currentMode !== 'daily') {
+                addRecordBtn.style.display = 'none';
+            } else {
+                addRecordBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openAddModal(item.date);
+                });
+            }
+        }
+
         // Hide timetable for weekly/monthly modes (no timeline data)
         if (currentMode === 'weekly' || currentMode === 'monthly') {
             const ttSection = clone.querySelector('.timetable-section');
@@ -196,44 +218,51 @@ function renderStandardReports() {
 
         // Timetable
         const timetableContainer = clone.querySelector('.timetable-container');
-        if (item.timeline && item.timeline.length > 0) {
-            const table = document.createElement('table');
-            table.className = 'timetable-table';
-            table.innerHTML = `
-                <thead>
+        const table = document.createElement('table');
+        table.className = 'timetable-table';
+        
+        // Ensure item.timeline exists
+        const timeline = item.timeline || [];
+        
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th data-i18n="task_name_label">Task</th>
+                    <th data-i18n="start_time_label">Start</th>
+                    <th data-i18n="end_time_label">End</th>
+                    <th style="text-align: right;" data-i18n="duration">Duration</th>
+                    <th style="text-align: right;">
+                        <button class="btn-primary" style="font-size: 0.8rem; padding: 0.2rem 0.5rem;" onclick="openAddModal('${item.date}')" data-i18n="start_btn">Add</button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                ${timeline.map(record => {
+            const isRunning = !record.end_time;
+            const endDisplay = isRunning ? t('now_label') : formatTimeOnly(record.end_time);
+            const durationDisplay = isRunning ? '-' : formatDuration(record.duration_sec);
+            return `
                     <tr>
-                        <th data-i18n="task_name_label">Task</th>
-                        <th data-i18n="start_time_label">Start</th>
-                        <th data-i18n="end_time_label">End</th>
-                        <th style="text-align: right;" data-i18n="duration">Duration</th>
-                        <th style="text-align: right;"></th>
+                        <td class="timetable-task-col">${escapeHTML(record.task_name)}</td>
+                        <td class="timetable-time-col">${formatTimeOnly(record.start_time)}</td>
+                        <td class="timetable-time-col">${endDisplay}</td>
+                        <td class="timetable-duration-col">${durationDisplay}</td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            <button class="btn-danger-ghost" style="color: var(--text-main); font-size: 0.8rem; padding: 0.2rem 0.5rem;" onclick="openEditModal(${record.id}, '${record.start_time}', '${record.end_time || ''}', '${escapeHTML(record.task_name)}')">${t('edit')}</button>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    ${item.timeline.map(record => {
-                const isRunning = !record.end_time;
-                const endDisplay = isRunning ? t('now_label') : formatTimeOnly(record.end_time);
-                const durationDisplay = isRunning ? '-' : formatDuration(record.duration_sec);
-                return `
-                        <tr>
-                            <td class="timetable-task-col">${escapeHTML(record.task_name)}</td>
-                            <td class="timetable-time-col">${formatTimeOnly(record.start_time)}</td>
-                            <td class="timetable-time-col">${endDisplay}</td>
-                            <td class="timetable-duration-col">${durationDisplay}</td>
-                            <td style="text-align: right;">
-                                <button class="btn-danger-ghost" style="color: var(--text-main); font-size: 0.8rem; padding: 0.2rem 0.5rem;" onclick="openEditModal(${record.id}, '${record.start_time}', '${record.end_time || ''}', '${escapeHTML(record.task_name)}')">${t('edit')}</button>
-                            </td>
-                        </tr>
-                    `}).join('')}
-                </tbody>
-            `;
-            timetableContainer.appendChild(table);
-        } else {
-            // Hide timetable section if no timeline data (e.g. in weekly mode if we don't fetch it, but here we do)
+                `}).join('')}
+                ${timeline.length === 0 ? `<tr><td colspan="5" class="text-muted" style="text-align: center; padding: 1rem;">${currentLang === 'ja' ? '記録がありません' : 'No records'}</td></tr>` : ''}
+            </tbody>
+        `;
+        timetableContainer.appendChild(table);
+
+        // Hide timetable section in weekly/monthly modes where timeline isn't applicable
+        if (currentMode !== 'daily') {
             const ttSection = clone.querySelector('.timetable-section');
             if (ttSection) ttSection.style.display = 'none';
         }
-
+        
         reportsContainer.appendChild(clone);
     });
 }
@@ -354,6 +383,29 @@ function showError(msg) {
     errorMsg.classList.remove('hidden');
 }
 
+function hideError() {
+    errorMsg.classList.add('hidden');
+    errorMsg.textContent = '';
+}
+
+async function startTask(taskId) {
+    hideError();
+    try {
+        const res = await fetch(`${API_BASE}/records/start`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ task_id: taskId })
+        });
+
+        if (!res.ok) throw new Error('Failed to start task');
+        
+        // Navigate back to the home page to see the active timer
+        window.location.href = 'index.html';
+    } catch (err) {
+        showError("Error: " + err.message);
+    }
+}
+
 // Utilities
 function escapeHTML(str) {
     if (!str) return '';
@@ -468,6 +520,31 @@ function downloadCSV(item) {
 function setupEventListeners() {
     if (editForm) editForm.addEventListener('submit', submitEdit);
     if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => editModal.classList.add('hidden'));
+
+    if (addForm) addForm.addEventListener('submit', submitAddRecord);
+    if (cancelAddBtn) cancelAddBtn.addEventListener('click', () => addModal.classList.add('hidden'));
+
+    // Searchable dropdown events
+    if (addTaskInput) {
+        addTaskInput.addEventListener('focus', () => {
+            addTaskDropdown.classList.add('open');
+            addTaskInput.select();
+        });
+
+        addTaskInput.addEventListener('input', () => {
+            renderTaskOptions(addTaskInput.value);
+            addTaskDropdown.classList.add('open');
+            // Clear hidden ID if user is typing to force re-selection
+            addTaskId.value = '';
+        });
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (addTaskDropdown && !addTaskDropdown.contains(e.target)) {
+            addTaskDropdown.classList.remove('open');
+        }
+    });
 }
 
 function openEditModal(id, startStr, endStr, taskName) {
@@ -508,6 +585,113 @@ async function submitEdit(e) {
         await fetchReports();
     } catch (err) {
         alert("Error: " + err.message);
+    }
+}
+
+async function fetchAllTasks() {
+    try {
+        const res = await fetch(`${API_BASE}/tasks`);
+        if (!res.ok) throw new Error('Failed to fetch tasks');
+        allTasks = await res.json();
+    } catch (err) {
+        showError(err.message);
+    }
+}
+
+async function openAddModal(dateStr) {
+    document.getElementById('add-record-date').value = dateStr;
+    addTaskId.value = '';
+    addTaskInput.value = '';
+    
+    // Default times: set 09:00:00 to 10:00:00 as placeholder
+    document.getElementById('add-start-time').value = `${dateStr}T09:00:00`;
+    document.getElementById('add-end-time').value = `${dateStr}T10:00:00`;
+    
+    await fetchAllTasks();
+    renderTaskOptions('');
+    
+    addModal.classList.remove('hidden');
+}
+
+function renderTaskOptions(filter) {
+    addTaskOptions.innerHTML = '';
+    const filterLower = filter.toLowerCase();
+    let hasResults = false;
+
+    const sortedTasks = [...allTasks].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+
+    sortedTasks.forEach(task => {
+        if (filterLower && !task.name.toLowerCase().includes(filterLower)) return;
+        hasResults = true;
+
+        const opt = document.createElement('div');
+        opt.className = 'searchable-select-option';
+        opt.textContent = task.name;
+        opt.dataset.value = task.id;
+        opt.addEventListener('click', () => {
+            addTaskId.value = task.id;
+            addTaskInput.value = task.name;
+            addTaskDropdown.classList.remove('open');
+        });
+        addTaskOptions.appendChild(opt);
+    });
+
+    if (!hasResults) {
+        const noResult = document.createElement('div');
+        noResult.className = 'searchable-select-no-results';
+        noResult.textContent = currentLang === 'ja' ? '該当なし' : 'No results';
+        addTaskOptions.appendChild(noResult);
+    }
+}
+
+async function submitAddRecord(e) {
+    e.preventDefault();
+    const taskId = addTaskId.value;
+    let startStr = document.getElementById('add-start-time').value.replace('T', ' ');
+    let endStr = document.getElementById('add-end-time').value.replace('T', ' ');
+
+    // Ensure format is YYYY-MM-DD HH:MM:SS
+    if (startStr.length === 16) startStr += ':00';
+    if (endStr.length === 16) endStr += ':00';
+
+    if (!taskId) {
+        alert(currentLang === 'ja' ? 'タスクを一覧から選択してください' : 'Please select a task from the list');
+        return;
+    }
+
+    if (new Date(startStr.replace(' ', 'T')) >= new Date(endStr.replace(' ', 'T'))) {
+        alert(t('error_start_after_end'));
+        return;
+    }
+
+    try {
+        console.log("Submitting record:", { task_id: taskId, start_time: startStr, end_time: endStr });
+        const res = await fetch(`${API_BASE}/records/manual`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                task_id: taskId,
+                start_time: startStr,
+                end_time: endStr
+            })
+        });
+        
+        if (!res.ok) {
+            let errorText = 'Failed to add record';
+            try {
+                const data = await res.json();
+                errorText = data.error || JSON.stringify(data);
+            } catch (e) {
+                errorText = await res.text();
+            }
+            throw new Error(`[${res.status}] ${errorText}`);
+        }
+
+        addModal.classList.add('hidden');
+        await fetchReports();
+    } catch (err) {
+        console.error("Submit Add Record Error:", err);
+        alert("詳細エラー: " + err.message);
     }
 }
 

@@ -248,7 +248,7 @@ function renderTimeline() {
     recordsToRender.forEach(record => {
         const isRunning = !record.end_time;
         const item = document.createElement('div');
-        item.className = `timeline-item ${isRunning ? 'active-record' : ''}`;
+        item.className = `timeline-item ${isRunning ? 'active-record' : 'clickable-timeline-item'}`;
 
         let displayDuration = '';
         if (isRunning) {
@@ -273,6 +273,16 @@ function renderTimeline() {
                 </div>
             </div>
         `;
+
+        // Make past (non-active) timeline items clickable to restart the task
+        if (!isRunning) {
+            item.addEventListener('click', (e) => {
+                // Don't trigger if user clicked on edit/delete buttons
+                if (e.target.closest('.timeline-actions')) return;
+                startTask(record.task_id);
+            });
+        }
+
         timelineContainer.appendChild(item);
     });
 }

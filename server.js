@@ -233,6 +233,7 @@ app.get('/api/reports/daily', (req, res) => {
             // Add to timeline
             dayObj.timeline.push({
                 id: record.record_id,
+                task_id: record.task_id,
                 task_name: record.task_name,
                 start_time: record.start_time,
                 end_time: record.end_time,
@@ -573,8 +574,12 @@ app.post('/api/records/start', (req, res) => {
 
     try {
         // Stop any currently running task
-        const activeRecord = db.prepare('SELECT id, start_time FROM records WHERE user_id = ? AND end_time IS NULL').get(DEFAULT_USER_ID);
+        const activeRecord = db.prepare('SELECT id, task_id, start_time FROM records WHERE user_id = ? AND end_time IS NULL').get(DEFAULT_USER_ID);
         if (activeRecord) {
+            if (activeRecord.task_id === task_id) {
+                return res.status(200).json({ id: activeRecord.id, task_id, start_time: activeRecord.start_time });
+            }
+
             const startTimestamp = new Date(activeRecord.start_time.replace(' ', 'T')).getTime();
             const endTimestamp = new Date(now.replace(' ', 'T')).getTime();
             const durationSec = Math.floor((endTimestamp - startTimestamp) / 1000);
@@ -583,8 +588,9 @@ app.post('/api/records/start', (req, res) => {
         }
 
         // Start new task
-        const info = db.prepare('INSERT INTO records (user_id, task_id, start_time) VALUES (?, ?, ?)').run(DEFAULT_USER_ID, task_id, now);
-        res.status(201).json({ id: info.lastInsertRowid, task_id, start_time: now });
+        db.prepare('INSERT INTO records (user_id, task_id, start_time) VALUES (?, ?, ?)').run(DEFAULT_USER_ID, task_id, now);
+        const lastInsert = db.prepare('SELECT last_insert_rowid() as id').get();
+        res.status(201).json({ id: lastInsert.id, task_id, start_time: now });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -615,6 +621,45 @@ app.delete('/api/records/:id', (req, res) => {
     try {
         db.prepare('DELETE FROM records WHERE id = ? AND user_id = ?').run(id, DEFAULT_USER_ID);
         res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/records/manual', (req, res) => {
+    const { task_id, start_time, end_time } = req.body;
+
+    if (!task_id || !start_time || !end_time) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    if (new Date(start_time.replace(' ', 'T')) >= new Date(end_time.replace(' ', 'T'))) {
+        return res.status(400).json({ error: 'Start time must be before end time' });
+    }
+
+    try {
+        const s = new Date(start_time.replace(' ', 'T')).getTime();
+        const e = new Date(end_time.replace(' ', 'T')).getTime();
+        const durationSec = Math.max(0, Math.floor((e - s) / 1000));
+
+        // Check for overlapping records
+        const overlap = db.prepare(`
+            SELECT id FROM records 
+            WHERE user_id = ? 
+              AND start_time < ? 
+              AND (end_time IS NULL OR end_time > ?)
+            LIMIT 1
+        `).get(DEFAULT_USER_ID, end_time, start_time);
+
+        if (overlap) {
+            return res.status(400).json({ error: 'The specified time overlaps with an existing record.' });
+        }
+
+        db.prepare('INSERT INTO records (user_id, task_id, start_time, end_time, duration_sec) VALUES (?, ?, ?, ?, ?)').run(DEFAULT_USER_ID, task_id, start_time, end_time, durationSec);
+        const lastInsert = db.prepare('SELECT last_insert_rowid() as id').get();
+        const newId = lastInsert.id;
+
+        res.status(201).json({ success: true, id: newId });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

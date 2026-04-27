@@ -81,6 +81,36 @@
         </div>
     </template>
 
+    <!-- Add Record Modal -->
+    <div id="add-modal" class="modal hidden">
+        <div class="modal-content" style="overflow: visible;">
+            <h3 data-i18n="add_record_title">Add Record</h3>
+            <form id="add-record-form">
+                <input type="hidden" id="add-record-date">
+                <div class="form-group" style="position: relative;">
+                    <label for="add-task-select" data-i18n="task_name_label">Task</label>
+                    <div class="searchable-select" id="add-task-dropdown">
+                        <input type="text" id="add-task-input" class="searchable-select-input" placeholder="Select Task..." autocomplete="off" required>
+                        <input type="hidden" id="add-task-id" required>
+                        <div class="searchable-select-options" id="add-task-options"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="add-start-time" data-i18n="start_time_label">Start Time</label>
+                    <input type="datetime-local" id="add-start-time" step="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="add-end-time" data-i18n="end_time_label">End Time</label>
+                    <input type="datetime-local" id="add-end-time" step="1" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-add-btn" class="btn-secondary" data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-primary" data-i18n="start_btn">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Edit Record Modal -->
     <div id="edit-modal" class="modal hidden">
         <div class="modal-content">
