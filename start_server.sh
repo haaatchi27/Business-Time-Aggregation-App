@@ -27,7 +27,7 @@ fi
 # Check for 'restart' argument
 if [ "$1" == "restart" ]; then
     echo "Restarting containers with --build..."
-    IS_RUNNING=$(docker compose ps --services --filter "status=running" | grep -w "$SERVICE_NAME")
+    IS_RUNNING=$(podman compose ps 2>&1 | grep "Up" | grep -w "$SERVICE_NAME")
     if [ -n "$IS_RUNNING" ]; then
         echo "Service '$SERVICE_NAME' is already running. Stopping and removing..."
         docker compose down

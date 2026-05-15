@@ -188,9 +188,9 @@ function renderStandardReports() {
             catEl.innerHTML = `
                 <div class="report-category-header">
                     <span class="report-category-name">${escapeHTML(cat.name)}</span>
-                    <span class="report-category-time">${formatDurationHuman(cat.total_duration, true)}</span>
-                </div>
-                <div class="report-category-tasks">${tasksHtml}</div>
+                    <span class="report-category-time">${formatDurationHuman(cat.total_duration, true)}</span >
+                </div >
+            <div class="report-category-tasks">${tasksHtml}</div>
             `;
             catContainer.appendChild(catEl);
         });
@@ -200,18 +200,18 @@ function renderStandardReports() {
             const unEl = document.createElement('div');
             unEl.className = 'report-category-item unassigned-group';
             unEl.innerHTML = `
-                <div class="report-category-header">
+            < div class= "report-category-header" >
                     <span class="report-category-name text-muted">${t('unassigned_group')}</span>
                     <span class="report-category-time text-muted">${formatDurationHuman(unassignedTotal, true)}</span>
-                </div>
-                <div class="report-category-tasks">
-                    ${item.unassigned_tasks.map(uTask => `
+                </div >
+            <div class="report-category-tasks">
+                ${item.unassigned_tasks.map(uTask => `
                         <div class="report-task-item">
                             <span>${escapeHTML(uTask.name)}</span>
                             <span class="report-task-time">${formatDuration(uTask.total_duration)}</span>
                         </div>
                     `).join('')}
-                </div>
+            </div>
             `;
             clone.querySelector('.unassigned-list').appendChild(unEl);
         }
@@ -220,22 +220,22 @@ function renderStandardReports() {
         const timetableContainer = clone.querySelector('.timetable-container');
         const table = document.createElement('table');
         table.className = 'timetable-table';
-        
+
         // Ensure item.timeline exists
         const timeline = item.timeline || [];
-        
+
         table.innerHTML = `
-            <thead>
-                <tr>
-                    <th data-i18n="task_name_label">Task</th>
-                    <th data-i18n="start_time_label">Start</th>
-                    <th data-i18n="end_time_label">End</th>
-                    <th style="text-align: right;" data-i18n="duration">Duration</th>
-                    <th style="text-align: right;">
-                        <button class="btn-primary" style="font-size: 0.8rem; padding: 0.2rem 0.5rem;" onclick="openAddModal('${item.date}')" data-i18n="start_btn">Add</button>
-                    </th>
-                </tr>
-            </thead>
+            < thead >
+            <tr>
+                <th data-i18n="task_name_label">Task</th>
+                <th data-i18n="start_time_label">Start</th>
+                <th data-i18n="end_time_label">End</th>
+                <th style="text-align: right;" data-i18n="duration">Duration</th>
+                <th style="text-align: right;">
+                    <button class="btn-primary" style="font-size: 0.8rem; padding: 0.2rem 0.5rem;" onclick="openAddModal('${item.date}')" data-i18n="start_btn">Add</button>
+                </th>
+            </tr>
+            </thead >
             <tbody>
                 ${timeline.map(record => {
             const isRunning = !record.end_time;
@@ -262,7 +262,7 @@ function renderStandardReports() {
             const ttSection = clone.querySelector('.timetable-section');
             if (ttSection) ttSection.style.display = 'none';
         }
-        
+
         reportsContainer.appendChild(clone);
     });
 }
@@ -304,10 +304,10 @@ function renderCategoryReports() {
             const displayDate = week.date.replace(/-/g, '/');
 
             weekEl.innerHTML = `
-                <div class="report-category-header" style="padding: 0.5rem 0; border: none;">
+            < div class= "report-category-header" style = "padding: 0.5rem 0; border: none;" >
                     <span class="report-category-name" style="font-weight: 400;">${displayDate}</span>
                     <span class="report-category-time">${formatDurationHuman(week.total_duration, true)}</span>
-                </div>
+                </div >
             `;
             listContainer.appendChild(weekEl);
         });
@@ -391,14 +391,14 @@ function hideError() {
 async function startTask(taskId) {
     hideError();
     try {
-        const res = await fetch(`${API_BASE}/records/start`, {
+        const res = await fetch(`${API_BASE} / records / start`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ task_id: taskId })
         });
 
         if (!res.ok) throw new Error('Failed to start task');
-        
+
         // Navigate back to the home page to see the active timer
         window.location.href = 'index.html';
     } catch (err) {
@@ -425,7 +425,7 @@ function formatDuration(seconds) {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    return `${h.toString().padStart(2, '0')}: ${m.toString().padStart(2, '0')}: ${s.toString().padStart(2, '0')}`;
 }
 
 function formatTimeOnly(dateStr) {
@@ -434,22 +434,25 @@ function formatTimeOnly(dateStr) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
-function formatDurationHuman(seconds, roundTo30 = false) {
+function formatDurationHuman(seconds, roundTo15 = false) {
     if (seconds == null) return '0h 0m';
 
-    let totalMinutes = Math.floor(seconds / 60);
-
-    if (roundTo30) {
+    if (roundTo15) {
+        const totalMinutes = Math.ceil(seconds / 60);
         const hours = Math.floor(totalMinutes / 60);
         const mins = totalMinutes % 60;
         let roundedMins = 0;
         let extraHour = 0;
 
-        if (mins >= 45) {
+        if (mins >= 53) {
             extraHour = 1;
             roundedMins = 0;
-        } else if (mins >= 15) {
+        } else if (mins >= 38) {
+            roundedMins = 45;
+        } else if (mins >= 23) {
             roundedMins = 30;
+        } else if (mins >= 8) {
+            roundedMins = 15;
         } else {
             roundedMins = 0;
         }
@@ -458,9 +461,12 @@ function formatDurationHuman(seconds, roundTo30 = false) {
         if (t('year_label')) { // Check if Japanese (has year_label)
             return `${finalHours}時間${roundedMins}分`;
         }
+        console.log("finalHours", finalHours);
+        console.log("roundedMins", roundedMins);
         return `${finalHours}h ${roundedMins}m`;
     }
 
+    const totalMinutes = Math.floor(seconds / 60);
     const h = Math.floor(totalMinutes / 60);
     const m = totalMinutes % 60;
 
@@ -471,15 +477,19 @@ function formatDurationHuman(seconds, roundTo30 = false) {
 }
 
 // CSV Download
-function roundTo30MinHours(seconds) {
-    const totalMinutes = Math.floor(seconds / 60);
+function roundTo15MinHours(seconds) {
+    const totalMinutes = Math.ceil(seconds / 60);
     const hours = Math.floor(totalMinutes / 60);
     const mins = totalMinutes % 60;
 
-    if (mins >= 45) {
+    if (mins >= 53) {
         return hours + 1;
-    } else if (mins >= 15) {
+    } else if (mins >= 38) {
+        return hours + 0.75;
+    } else if (mins >= 23) {
         return hours + 0.5;
+    } else if (mins >= 8) {
+        return hours + 0.25;
     } else {
         return hours;
     }
@@ -487,22 +497,22 @@ function roundTo30MinHours(seconds) {
 
 function downloadCSV(item) {
     const dateStr = item.date.replace(/-/g, '/');
-    const totalHours = roundTo30MinHours(item.total_duration);
-    const lines = [`${dateStr} ${totalHours.toFixed(1)}`];
+    const totalHours = roundTo15MinHours(item.total_duration);
+    const lines = [`${dateStr} ${String(totalHours)}`];
 
     // Categories (skip excluded)
     item.categories.forEach(cat => {
         if (cat.is_excluded) return;
-        const hours = roundTo30MinHours(cat.total_duration);
-        lines.push(`${cat.name}, ${hours.toFixed(1)}`);
+        const hours = roundTo15MinHours(cat.total_duration);
+        lines.push(`${cat.name}, ${String(hours)}`);
     });
 
     // Unassigned tasks
     if (item.unassigned_tasks && item.unassigned_tasks.length > 0) {
         const unassignedTotal = item.unassigned_tasks.reduce((sum, uTask) => sum + uTask.total_duration, 0);
-        const hours = roundTo30MinHours(unassignedTotal);
+        const hours = roundTo15MinHours(unassignedTotal);
         const label = t('unassigned_group');
-        lines.push(`${label}, ${hours.toFixed(1)}`);
+        lines.push(`${label}, ${String(hours)}`);
     }
 
     const csvContent = lines.join('\n');
@@ -571,7 +581,7 @@ async function submitEdit(e) {
     }
 
     try {
-        const res = await fetch(`${API_BASE}/records/${id}`, {
+        const res = await fetch(`${API_BASE} / records / ${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -590,7 +600,7 @@ async function submitEdit(e) {
 
 async function fetchAllTasks() {
     try {
-        const res = await fetch(`${API_BASE}/tasks`);
+        const res = await fetch(`${API_BASE} / tasks`);
         if (!res.ok) throw new Error('Failed to fetch tasks');
         allTasks = await res.json();
     } catch (err) {
@@ -602,14 +612,14 @@ async function openAddModal(dateStr) {
     document.getElementById('add-record-date').value = dateStr;
     addTaskId.value = '';
     addTaskInput.value = '';
-    
+
     // Default times: set 09:00:00 to 10:00:00 as placeholder
     document.getElementById('add-start-time').value = `${dateStr}T09:00:00`;
     document.getElementById('add-end-time').value = `${dateStr}T10:00:00`;
-    
+
     await fetchAllTasks();
     renderTaskOptions('');
-    
+
     addModal.classList.remove('hidden');
 }
 
@@ -666,7 +676,7 @@ async function submitAddRecord(e) {
 
     try {
         console.log("Submitting record:", { task_id: taskId, start_time: startStr, end_time: endStr });
-        const res = await fetch(`${API_BASE}/records/manual`, {
+        const res = await fetch(`${API_BASE} / records / manual`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -675,7 +685,7 @@ async function submitAddRecord(e) {
                 end_time: endStr
             })
         });
-        
+
         if (!res.ok) {
             let errorText = 'Failed to add record';
             try {
@@ -684,7 +694,7 @@ async function submitAddRecord(e) {
             } catch (e) {
                 errorText = await res.text();
             }
-            throw new Error(`[${res.status}] ${errorText}`);
+            throw new Error(`[${res.status}]${errorText}`);
         }
 
         addModal.classList.add('hidden');
