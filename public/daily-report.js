@@ -495,7 +495,7 @@ function roundTo15MinHours(seconds) {
     }
 }
 
-function downloadCSV(item) {
+async function downloadCSV(item) {
     const dateStr = item.date.replace(/-/g, '/');
     const totalHours = roundTo15MinHours(item.total_duration);
     const lines = [`${dateStr} ${String(totalHours)}`];
@@ -516,12 +516,30 @@ function downloadCSV(item) {
     }
 
     const csvContent = lines.join('\n');
+    const fileName = `report_${item.date}.csv`;
+
+    // Use Electron's native save dialog when available
+    if (window.electronAPI && window.electronAPI.isElectron) {
+        try {
+            const result = await window.electronAPI.saveCSV(fileName, csvContent);
+            if (result.success) {
+                console.log('CSV saved to:', result.filePath);
+            } else if (result.error) {
+                alert('CSV保存エラー: ' + result.error);
+            }
+        } catch (err) {
+            alert('CSV保存エラー: ' + err.message);
+        }
+        return;
+    }
+
+    // Fallback for browser mode
     const bom = '\uFEFF';
     const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `report_${item.date}.csv`;
+    link.download = fileName;
     link.click();
     URL.revokeObjectURL(url);
 }

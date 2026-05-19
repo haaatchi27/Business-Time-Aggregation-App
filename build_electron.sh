@@ -2,8 +2,11 @@
 
 
 # rm -rf data/*.sqlite
-
-sudo mv data/database.sqlite /tmp/database.sqlite.bak || exit 1
+backuped=false
+if [ -f data/database.sqlite ]; then
+  sudo mv data/database.sqlite /tmp/database.sqlite.bak || exit 1
+  backuped=true
+fi
 
 docker run --rm -ti \
   --env-file <(env | grep -iE 'DEBUG|NODE_|ELECTRON_|YARN_|NPM_|CI|PULL_REQUEST|COMMIT_EMAIL|COMMIT_SHA') \
@@ -12,4 +15,6 @@ docker run --rm -ti \
   docker.io/electronuserland/builder:wine \
   /bin/bash -c "npm install && npm run build:win"
 
-sudo mv /tmp/database.sqlite.bak data/database.sqlite
+if [ ${backuped} == true ]; then
+  sudo mv /tmp/database.sqlite.bak data/database.sqlite
+fi
