@@ -225,7 +225,7 @@ function renderStandardReports() {
         const timeline = item.timeline || [];
 
         table.innerHTML = `
-            < thead >
+            <thead>
             <tr>
                 <th data-i18n="task_name_label">Task</th>
                 <th data-i18n="start_time_label">Start</th>
@@ -235,7 +235,7 @@ function renderStandardReports() {
                     <button class="btn-primary" style="font-size: 0.8rem; padding: 0.2rem 0.5rem;" onclick="openAddModal('${item.date}')" data-i18n="start_btn">Add</button>
                 </th>
             </tr>
-            </thead >
+            </thead>
             <tbody>
                 ${timeline.map(record => {
             const isRunning = !record.end_time;
@@ -391,7 +391,7 @@ function hideError() {
 async function startTask(taskId) {
     hideError();
     try {
-        const res = await fetch(`${API_BASE} / records / start`, {
+        const res = await fetch(`${API_BASE}/records/start`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ task_id: taskId })
@@ -599,7 +599,7 @@ async function submitEdit(e) {
     }
 
     try {
-        const res = await fetch(`${API_BASE} / records / ${id}`, {
+        const res = await fetch(`${API_BASE}/records/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -618,7 +618,7 @@ async function submitEdit(e) {
 
 async function fetchAllTasks() {
     try {
-        const res = await fetch(`${API_BASE} / tasks`);
+        const res = await fetch(`${API_BASE}/tasks`);
         if (!res.ok) throw new Error('Failed to fetch tasks');
         allTasks = await res.json();
     } catch (err) {
@@ -694,7 +694,7 @@ async function submitAddRecord(e) {
 
     try {
         console.log("Submitting record:", { task_id: taskId, start_time: startStr, end_time: endStr });
-        const res = await fetch(`${API_BASE} / records / manual`, {
+        const res = await fetch(`${API_BASE}/records/manual`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

@@ -230,16 +230,18 @@ function renderTimeline() {
 
     timelineContainer.innerHTML = '';
 
-    const needsFolding = sortedRecords.length > 2;
+    const foldCount = window.innerWidth >= 800 ? 4 : 2;
+    const needsFolding = sortedRecords.length > foldCount;
     const recordsToRender = (needsFolding && !showAllTimeline)
-        ? sortedRecords.slice(-2)
+        ? sortedRecords.slice(-foldCount)
         : sortedRecords;
 
     // Update Header Toggle Button
     if (timelineToggleBtn) {
         if (needsFolding) {
             timelineToggleBtn.classList.remove('hidden');
-            timelineToggleBtn.textContent = showAllTimeline ? t('show_less') : `${t('show_more')} (${sortedRecords.length - 2})`;
+            const hiddenCount = sortedRecords.length - foldCount;
+            timelineToggleBtn.textContent = showAllTimeline ? t('show_less') : `${t('show_more')} (${hiddenCount})`;
         } else {
             timelineToggleBtn.classList.add('hidden');
         }
@@ -433,6 +435,15 @@ function setupEventListeners() {
         renderTasks();
         renderTimeline();
         updateStopButtonState();
+    });
+
+    let isWideScreen = window.innerWidth >= 800;
+    window.addEventListener('resize', () => {
+        const currentlyWide = window.innerWidth >= 800;
+        if (isWideScreen !== currentlyWide) {
+            isWideScreen = currentlyWide;
+            renderTimeline();
+        }
     });
 }
 
