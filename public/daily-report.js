@@ -3,6 +3,7 @@ const API_BASE = '/api';
 // State
 let reportsData = [];
 let currentMode = 'daily'; // 'daily', 'weekly', 'monthly', or 'by-category'
+let openReportDates = new Set();
 
 // DOM Elements
 const reportsContainer = document.getElementById('reports-container');
@@ -139,10 +140,22 @@ function renderStandardReports() {
         clone.querySelector('.daily-date').textContent = displayDate;
         clone.querySelector('.daily-duration strong').textContent = formatDuration(item.total_duration);
 
+        if (openReportDates.has(item.date)) {
+            body.classList.remove('hidden');
+            toggleBtn.textContent = '▲';
+            // Render chart after the element is in the DOM
+            setTimeout(() => renderChart(canvas, item), 0);
+        }
+
         header.addEventListener('click', () => {
             const isHidden = body.classList.toggle('hidden');
             toggleBtn.textContent = isHidden ? '▼' : '▲';
-            if (!isHidden) renderChart(canvas, item);
+            if (!isHidden) {
+                openReportDates.add(item.date);
+                renderChart(canvas, item);
+            } else {
+                openReportDates.delete(item.date);
+            }
         });
 
         // CSV download button (daily mode only)
@@ -290,9 +303,19 @@ function renderCategoryReports() {
         // Apply rounding to category total
         clone.querySelector('.daily-duration strong').textContent = formatDurationHuman(totalDuration, true);
 
+        if (openReportDates.has(catName)) {
+            body.classList.remove('hidden');
+            toggleBtn.textContent = '▲';
+        }
+
         header.addEventListener('click', () => {
             const isHidden = body.classList.toggle('hidden');
             toggleBtn.textContent = isHidden ? '▼' : '▲';
+            if (!isHidden) {
+                openReportDates.add(catName);
+            } else {
+                openReportDates.delete(catName);
+            }
         });
 
         const listContainer = clone.querySelector('.categories-list');

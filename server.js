@@ -585,6 +585,14 @@ app.post('/api/records/start', (req, res) => {
             const durationSec = Math.floor((endTimestamp - startTimestamp) / 1000);
 
             db.prepare('UPDATE records SET end_time = ?, duration_sec = ? WHERE id = ?').run(now, durationSec, activeRecord.id);
+        } else {
+            // No active record. Check if the most recent record matches the requested task_id
+            const lastRecord = db.prepare('SELECT id, task_id, start_time FROM records WHERE user_id = ? ORDER BY start_time DESC LIMIT 1').get(DEFAULT_USER_ID);
+            if (lastRecord && lastRecord.task_id === task_id) {
+                // Resume the last record
+                db.prepare('UPDATE records SET end_time = NULL, duration_sec = NULL WHERE id = ?').run(lastRecord.id);
+                return res.status(200).json({ id: lastRecord.id, task_id, start_time: lastRecord.start_time });
+            }
         }
 
         // Start new task
