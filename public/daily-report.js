@@ -261,6 +261,7 @@ function renderStandardReports() {
                         <td class="timetable-time-col">${endDisplay}</td>
                         <td class="timetable-duration-col">${durationDisplay}</td>
                         <td style="text-align: right; white-space: nowrap;">
+                            <button class="btn-danger-ghost" style="font-size: 0.8rem; padding: 0.2rem 0.5rem; margin-right: 0.25rem;" onclick="deleteRecord(${record.id})">${t('delete')}</button>
                             <button class="btn-danger-ghost" style="color: var(--text-main); font-size: 0.8rem; padding: 0.2rem 0.5rem;" onclick="openEditModal(${record.id}, '${record.start_time}', '${record.end_time || ''}', '${escapeHTML(record.task_name)}')">${t('edit')}</button>
                         </td>
                     </tr>
@@ -541,12 +542,13 @@ async function downloadCSV(item) {
     const csvContent = lines.join('\n');
     const fileName = `report_${item.date}.csv`;
 
-    // Use Electron's native save dialog when available
+    // Use Electron's native auto-save when available
     if (window.electronAPI && window.electronAPI.isElectron) {
         try {
             const result = await window.electronAPI.saveCSV(fileName, csvContent);
             if (result.success) {
                 console.log('CSV saved to:', result.filePath);
+                alert((currentLang === 'ja' ? 'CSVファイルをダウンロードフォルダーに保存しました:\n' : 'CSV file saved to Downloads folder:\n') + result.filePath);
             } else if (result.error) {
                 alert('CSV保存エラー: ' + result.error);
             }
@@ -633,6 +635,17 @@ async function submitEdit(e) {
         if (!res.ok) throw new Error('Failed to update record');
 
         editModal.classList.add('hidden');
+        await fetchReports();
+    } catch (err) {
+        alert("Error: " + err.message);
+    }
+}
+
+async function deleteRecord(recordId) {
+    if (!confirm(t('confirm_delete_record'))) return;
+    try {
+        const res = await fetch(`${API_BASE}/records/${recordId}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Failed to delete record');
         await fetchReports();
     } catch (err) {
         alert("Error: " + err.message);

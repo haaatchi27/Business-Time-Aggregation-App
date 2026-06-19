@@ -115,25 +115,13 @@ app.whenReady().then(async () => {
         return;
     }
 
-    // IPC handler: save CSV to file system with save dialog
+    // IPC handler: save CSV to file system automatically without dialog
     ipcMain.handle('save-csv', async (event, { fileName, csvContent }) => {
         try {
             const defaultPath = path.join(app.getPath('downloads'), fileName);
-            const result = await dialog.showSaveDialog(mainWindow, {
-                title: 'CSVファイルの保存',
-                defaultPath: defaultPath,
-                filters: [
-                    { name: 'CSV Files', extensions: ['csv'] }
-                ]
-            });
-
-            if (result.canceled || !result.filePath) {
-                return { success: false, canceled: true };
-            }
-
             const bom = '\uFEFF';
-            fs.writeFileSync(result.filePath, bom + csvContent, 'utf-8');
-            return { success: true, filePath: result.filePath };
+            fs.writeFileSync(defaultPath, bom + csvContent, 'utf-8');
+            return { success: true, filePath: defaultPath };
         } catch (err) {
             return { success: false, error: err.message };
         }
