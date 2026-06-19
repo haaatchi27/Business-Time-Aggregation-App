@@ -99,7 +99,8 @@ const translations = {
         "week_of": "Week of ",
         "loading": "Loading...",
         "active_rec": "● REC",
-        "download_csv": "CSV Download"
+        "download_csv": "CSV Download",
+        "never": "Never"
     },
     ja: {
         "title": "業務時間集計",
@@ -186,7 +187,8 @@ const translations = {
         "week_of": "週開始日: ",
         "loading": "読み込み中...",
         "active_rec": "● 計測中",
-        "download_csv": "CSV ダウンロード"
+        "download_csv": "CSV ダウンロード",
+        "never": "実行なし"
     }
 };
 

@@ -201,14 +201,21 @@ function renderTasks() {
 
     sortedTasks.forEach(task => {
         const isActive = activeRecord && activeRecord.task_id === task.id;
+        const lastExecuted = task.last_executed_at 
+            ? task.last_executed_at.replace(/-/g, '/').substring(0, 16) 
+            : t('never');
+
+        const displayInfo = isActive 
+            ? `<span style="color: var(--primary-color); font-weight: 600;">${t('active_rec')}</span>` 
+            : `<span style="font-size: 0.8rem; color: var(--text-muted);">${lastExecuted}</span>`;
 
         const item = document.createElement('div');
         item.className = 'task-item';
 
         item.innerHTML = `
-            <button class="task-btn ${isActive ? 'active' : ''}" onclick="startTask(${task.id})">
-                ${escapeHTML(task.name)}
-                ${isActive ? `<span style="float:right; font-size: 0.8rem;">${t('active_rec')}</span>` : ''}
+            <button class="task-btn ${isActive ? 'active' : ''}" onclick="startTask(${task.id})" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <span class="task-name-text" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 0.5rem;">${escapeHTML(task.name)}</span>
+                <span class="task-time-text" style="flex-shrink: 0; font-size: 0.8rem;">${displayInfo}</span>
             </button>
             <div class="task-actions">
                 <button class="btn-danger-ghost" onclick="archiveTask(${task.id})" title="Archive">×</button>
