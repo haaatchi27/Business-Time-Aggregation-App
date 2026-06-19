@@ -202,7 +202,7 @@ function renderTasks() {
     sortedTasks.forEach(task => {
         const isActive = activeRecord && activeRecord.task_id === task.id;
         const lastExecuted = task.last_executed_at 
-            ? task.last_executed_at.replace(/-/g, '/').substring(0, 16) 
+            ? task.last_executed_at.replace(/-/g, '/').substring(0, 10) 
             : t('never');
 
         const displayInfo = isActive 
