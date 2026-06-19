@@ -327,10 +327,10 @@ function renderCategoryReports() {
             const displayDate = week.date.replace(/-/g, '/');
 
             weekEl.innerHTML = `
-            < div class= "report-category-header" style = "padding: 0.5rem 0; border: none;" >
+            <div class="report-category-header" style="padding: 0.5rem 0; border: none;">
                     <span class="report-category-name" style="font-weight: 400;">${displayDate}</span>
                     <span class="report-category-time">${formatDurationHuman(week.total_duration, true)}</span>
-                </div >
+                </div>
             `;
             listContainer.appendChild(weekEl);
         });

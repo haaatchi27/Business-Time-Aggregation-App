@@ -1,3 +1,18 @@
+// Override native alert and confirm in Electron environment to prevent focus/input freeze bugs
+if (window.electronAPI && window.electronAPI.isElectron) {
+    window.alert = function(message) {
+        const lang = localStorage.getItem('appLang') || 'ja';
+        const title = lang === 'ja' ? 'お知らせ' : 'Notification';
+        window.electronAPI.showAlert(message, title);
+    };
+
+    window.confirm = function(message) {
+        const lang = localStorage.getItem('appLang') || 'ja';
+        const title = lang === 'ja' ? '確認' : 'Confirmation';
+        return window.electronAPI.showConfirm(message, title);
+    };
+}
+
 const translations = {
     en: {
         "title": "Activity Tracker",

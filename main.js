@@ -139,6 +139,30 @@ app.whenReady().then(async () => {
         }
     });
 
+    // IPC handler: show native alert dialog synchronously to prevent focus lock
+    ipcMain.on('show-alert-sync', (event, { message, title }) => {
+        dialog.showMessageBoxSync(mainWindow, {
+            type: 'warning',
+            title: title || 'お知らせ',
+            message: message,
+            buttons: ['OK']
+        });
+        event.returnValue = true;
+    });
+
+    // IPC handler: show native confirm dialog synchronously to prevent focus lock
+    ipcMain.on('show-confirm-sync', (event, { message, title }) => {
+        const choice = dialog.showMessageBoxSync(mainWindow, {
+            type: 'question',
+            title: title || '確認',
+            message: message,
+            buttons: ['OK', 'キャンセル'],
+            defaultId: 0,
+            cancelId: 1
+        });
+        event.returnValue = (choice === 0);
+    });
+
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow(serverInstance.address().port);
