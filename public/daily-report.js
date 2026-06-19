@@ -158,6 +158,19 @@ function renderStandardReports() {
             }
         });
 
+        // Delete day button (daily mode only)
+        const deleteDayBtn = clone.querySelector('.btn-delete-day');
+        if (deleteDayBtn) {
+            if (currentMode !== 'daily') {
+                deleteDayBtn.style.display = 'none';
+            } else {
+                deleteDayBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteDayRecords(item.date);
+                });
+            }
+        }
+
         // CSV download button (daily mode only)
         const csvContainer = clone.querySelector('.csv-download-container');
         if (currentMode === 'daily') {
@@ -646,6 +659,22 @@ async function deleteRecord(recordId) {
     try {
         const res = await fetch(`${API_BASE}/records/${recordId}`, { method: 'DELETE' });
         if (!res.ok) throw new Error('Failed to delete record');
+        await fetchReports();
+    } catch (err) {
+        alert("Error: " + err.message);
+    }
+}
+
+async function deleteDayRecords(dateStr) {
+    const confirmMsg = currentLang === 'ja'
+        ? `${dateStr} のすべての記録を削除しますか？\n（この操作は取り消せません）`
+        : `Are you sure you want to delete all records for ${dateStr}?\n(This action cannot be undone)`;
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/records/by-date/${dateStr}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Failed to delete records');
         await fetchReports();
     } catch (err) {
         alert("Error: " + err.message);

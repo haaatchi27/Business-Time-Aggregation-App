@@ -1,6 +1,6 @@
 {
   "name": "time-tracking-app",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "業務時間集計アプリ",
   "main": "main.js",
   "scripts": {

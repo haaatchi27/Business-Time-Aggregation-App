@@ -634,6 +634,16 @@ app.delete('/api/records/:id', (req, res) => {
     }
 });
 
+app.delete('/api/records/by-date/:date', (req, res) => {
+    const { date } = req.params;
+    try {
+        db.prepare('DELETE FROM records WHERE user_id = ? AND start_time LIKE ?').run(DEFAULT_USER_ID, `${date}%`);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.post('/api/records/manual', (req, res) => {
     const { task_id, start_time, end_time } = req.body;
 
