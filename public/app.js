@@ -167,6 +167,12 @@ function renderTasks() {
             const timeB = b.last_activity_at ? new Date(b.last_activity_at.replace(' ', 'T')).getTime() : 0;
             if (timeA === timeB) return b.id - a.id; // Fallback to ID DESC
             return timeB - timeA;
+        } else if (sortBy === 'last_executed_at') {
+            // Last executed task first (Descending)
+            const timeA = a.last_executed_at ? new Date(a.last_executed_at.replace(' ', 'T')).getTime() : 0;
+            const timeB = b.last_executed_at ? new Date(b.last_executed_at.replace(' ', 'T')).getTime() : 0;
+            if (timeA === timeB) return b.id - a.id; // Fallback to ID DESC
+            return timeB - timeA;
         } else if (sortBy === 'abc') {
             // Alphabetical (Ascending A-Z)
             return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });

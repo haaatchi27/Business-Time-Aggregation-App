@@ -591,12 +591,14 @@ app.post('/api/records/start', (req, res) => {
             if (lastRecord && lastRecord.task_id === task_id) {
                 // Resume the last record
                 db.prepare('UPDATE records SET end_time = NULL, duration_sec = NULL WHERE id = ?').run(lastRecord.id);
+                db.prepare('UPDATE tasks SET last_executed_at = ? WHERE id = ? AND user_id = ?').run(now, task_id, DEFAULT_USER_ID);
                 return res.status(200).json({ id: lastRecord.id, task_id, start_time: lastRecord.start_time });
             }
         }
 
         // Start new task
         db.prepare('INSERT INTO records (user_id, task_id, start_time) VALUES (?, ?, ?)').run(DEFAULT_USER_ID, task_id, now);
+        db.prepare('UPDATE tasks SET last_executed_at = ? WHERE id = ? AND user_id = ?').run(now, task_id, DEFAULT_USER_ID);
         const lastInsert = db.prepare('SELECT last_insert_rowid() as id').get();
         res.status(201).json({ id: lastInsert.id, task_id, start_time: now });
     } catch (err) {
@@ -627,7 +629,13 @@ app.post('/api/records/stop', (req, res) => {
 app.delete('/api/records/:id', (req, res) => {
     const { id } = req.params;
     try {
-        db.prepare('DELETE FROM records WHERE id = ? AND user_id = ?').run(id, DEFAULT_USER_ID);
+        const record = db.prepare('SELECT task_id FROM records WHERE id = ? AND user_id = ?').get(id, DEFAULT_USER_ID);
+        if (record) {
+            db.prepare('DELETE FROM records WHERE id = ? AND user_id = ?').run(id, DEFAULT_USER_ID);
+            // Recalculate last_executed_at for this task
+            const maxStart = db.prepare('SELECT MAX(start_time) as max_start FROM records WHERE task_id = ? AND user_id = ?').get(record.task_id, DEFAULT_USER_ID);
+            db.prepare('UPDATE tasks SET last_executed_at = ? WHERE id = ? AND user_id = ?').run(maxStart ? maxStart.max_start : null, record.task_id, DEFAULT_USER_ID);
+        }
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -637,7 +645,17 @@ app.delete('/api/records/:id', (req, res) => {
 app.delete('/api/records/by-date/:date', (req, res) => {
     const { date } = req.params;
     try {
+        // Find all task IDs that have records on this day
+        const affectedTasks = db.prepare('SELECT DISTINCT task_id FROM records WHERE user_id = ? AND start_time LIKE ?').all(DEFAULT_USER_ID, `${date}%`);
+        
         db.prepare('DELETE FROM records WHERE user_id = ? AND start_time LIKE ?').run(DEFAULT_USER_ID, `${date}%`);
+        
+        // Recalculate last_executed_at for each affected task
+        affectedTasks.forEach(tRow => {
+            const maxStart = db.prepare('SELECT MAX(start_time) as max_start FROM records WHERE task_id = ? AND user_id = ?').get(tRow.task_id, DEFAULT_USER_ID);
+            db.prepare('UPDATE tasks SET last_executed_at = ? WHERE id = ? AND user_id = ?').run(maxStart ? maxStart.max_start : null, tRow.task_id, DEFAULT_USER_ID);
+        });
+        
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -674,6 +692,13 @@ app.post('/api/records/manual', (req, res) => {
         }
 
         db.prepare('INSERT INTO records (user_id, task_id, start_time, end_time, duration_sec) VALUES (?, ?, ?, ?, ?)').run(DEFAULT_USER_ID, task_id, start_time, end_time, durationSec);
+        
+        // Update task's last_executed_at if the manual record is newer
+        const task = db.prepare('SELECT last_executed_at FROM tasks WHERE id = ? AND user_id = ?').get(task_id, DEFAULT_USER_ID);
+        if (!task || !task.last_executed_at || start_time > task.last_executed_at) {
+            db.prepare('UPDATE tasks SET last_executed_at = ? WHERE id = ? AND user_id = ?').run(start_time, task_id, DEFAULT_USER_ID);
+        }
+        
         const lastInsert = db.prepare('SELECT last_insert_rowid() as id').get();
         const newId = lastInsert.id;
 
@@ -744,6 +769,10 @@ app.put('/api/records/:id', (req, res) => {
                     duration_sec = ?
                 WHERE id = ? AND user_id = ?
             `).run(finalStart, finalEnd || null, durationSec, id, DEFAULT_USER_ID);
+            
+            // Recalculate last_executed_at for this task
+            const maxStart = db.prepare('SELECT MAX(start_time) as max_start FROM records WHERE task_id = ? AND user_id = ?').get(record.task_id, DEFAULT_USER_ID);
+            db.prepare('UPDATE tasks SET last_executed_at = ? WHERE id = ? AND user_id = ?').run(maxStart ? maxStart.max_start : null, record.task_id, DEFAULT_USER_ID);
         })();
 
         res.json({ success: true });

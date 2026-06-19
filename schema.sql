@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     name TEXT NOT NULL,
     is_deleted INTEGER DEFAULT 0,
     created_at TEXT DEFAULT (DATETIME('now', 'localtime')),
+    last_executed_at TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );

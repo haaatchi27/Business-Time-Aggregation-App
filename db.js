@@ -107,6 +107,7 @@ async function initDb() {
             name TEXT NOT NULL,
             is_deleted INTEGER DEFAULT 0,
             created_at TEXT DEFAULT (DATETIME('now', 'localtime')),
+            last_executed_at TEXT,
             FOREIGN KEY (user_id) REFERENCES users(id),
             FOREIGN KEY (category_id) REFERENCES categories(id)
         );
@@ -127,6 +128,7 @@ async function initDb() {
     try { wrapper.exec("ALTER TABLE tasks ADD COLUMN category_id INTEGER REFERENCES categories(id)"); } catch (err) { }
     try { wrapper.exec("ALTER TABLE tasks ADD COLUMN created_at TEXT DEFAULT (DATETIME('now', 'localtime'))"); } catch (err) { }
     try { wrapper.exec("ALTER TABLE categories ADD COLUMN is_excluded INTEGER DEFAULT 0"); } catch (err) { }
+    try { wrapper.exec("ALTER TABLE tasks ADD COLUMN last_executed_at TEXT"); } catch (err) { }
 
     // Recover orphaned tasks from deleted categories
     try { wrapper.exec("UPDATE tasks SET category_id = NULL WHERE category_id IN (SELECT id FROM categories WHERE is_deleted = 1)"); } catch (err) { }
