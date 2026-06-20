@@ -226,11 +226,11 @@ function renderStandardReports() {
             const unEl = document.createElement('div');
             unEl.className = 'report-category-item unassigned-group';
             unEl.innerHTML = `
-            < div class= "report-category-header" >
+                <div class="report-category-header">
                     <span class="report-category-name text-muted">${t('unassigned_group')}</span>
                     <span class="report-category-time text-muted">${formatDurationHuman(unassignedTotal, true)}</span>
-                </div >
-            <div class="report-category-tasks">
+                </div>
+                <div class="report-category-tasks">
                 ${item.unassigned_tasks.map(uTask => `
                         <div class="report-task-item">
                             <span>${escapeHTML(uTask.name)}</span>
